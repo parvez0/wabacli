@@ -1,4 +1,4 @@
-package internal
+package request
 
 import (
 	"github.com/parvez0/wabacli/config"

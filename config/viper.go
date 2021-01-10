@@ -5,6 +5,11 @@ import (
 	"sync"
 )
 
+const (
+	DefaultCurrentContext = "default"
+	DefaultServer = "https://localhost"
+)
+
 var (
 	once sync.Once
 	config *Configuration
@@ -35,14 +40,14 @@ func initializeConfig() (*Configuration, error)  {
 	viper.SetDefault("clusters", []Cluster{
 		{
 			Auth: "",
-			Server: "https://localhost",
+			Server: DefaultServer,
 			Name: "Default Server",
 			Number: "",
-			Context: "default",
+			Context: DefaultCurrentContext,
 			Insecure: true,
 		},
 	})
-	viper.SetDefault("current_context", "default")
+	viper.SetDefault("current_context", DefaultCurrentContext)
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			viper.WriteConfig()
