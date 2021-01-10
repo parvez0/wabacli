@@ -18,7 +18,7 @@ var (
 // New provides a singleton for creating the configuration
 // Once handles the cases where multiple routines are trying
 // to initialize the config file
-func New() (c *Configuration, err error) {
+func GetConfig() (c *Configuration, err error) {
 	if config != nil {
 		return config, nil
 	}
@@ -59,10 +59,12 @@ func initializeConfig() (*Configuration, error)  {
 	if err != nil {
 		return config, err
 	}
-	for _, v := range config.Clusters {
-		if v.Context == config.CurrentContext {
-			config.CurrentCluster = v
-			break
+	if config.CurrentContext != config.CurrentCluster.Context {
+		for _, v := range config.Clusters {
+			if v.Context == config.CurrentContext {
+				config.CurrentCluster = v
+				break
+			}
 		}
 	}
 	return config, nil
