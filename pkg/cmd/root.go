@@ -2,12 +2,15 @@ package cmd
 
 import (
 	config2 "github.com/parvez0/wabacli/config"
+	"github.com/parvez0/wabacli/pkg/cmd/context"
 	"github.com/parvez0/wabacli/pkg/utils/templates"
 	"github.com/spf13/cobra"
 )
 
 var config, _ = config2.GetConfig()
 
+
+// newDefaultWabaCmd
 func newDefaultWabaCmdWithConfig() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "wabactl",
@@ -17,9 +20,12 @@ func newDefaultWabaCmdWithConfig() *cobra.Command {
 
 			you can find more information of the api's at:
             	https://developers.facebook.com/docs/whatsapp/api/account
-`),
-		Run:   nil,
+		`),
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		},
 	}
+	cmd.AddCommand(context.NewContextCommand(config))
 	return cmd
 }
 

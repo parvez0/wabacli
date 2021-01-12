@@ -95,7 +95,7 @@ func Debug(msgs ...interface{}) {
 	}
 	t := time.Now()
 	cur := fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02d", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
-	fmt.Println(processMsg("[" + cur + "] Debug: ", msgs ...))
+	fmt.Println(processMsg("[" + cur + "] debug: ", msgs ...))
 }
 
 // Error should always print to screen and exit after that
@@ -109,5 +109,5 @@ func Panic(msgs ...interface{}) {
 	if !checkLevel(PanicCode){
 		return
 	}
-	panic(processMsg("Panic!! ", msgs))
+	panic(processMsg("", msgs ...))
 }
