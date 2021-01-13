@@ -20,9 +20,8 @@ func (o *GetOptions)Complete() {
 
 func (o *GetOptions)Run() error {
 	if o.All {
-		tw := templates.NewTableWriter(o.Config.CurrentCluster)
-		tw.WriteHeaders()
-		tw.WriteData()
+		tw := templates.NewTableWriter(o.Config.Clusters)
+		tw.ProcessData()
 		tw.Render()
 	}
 	return nil

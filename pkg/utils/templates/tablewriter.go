@@ -1,14 +1,16 @@
 package templates
 
 import (
+	"fmt"
 	"github.com/olekukonko/tablewriter"
+	"github.com/parvez0/wabacli/config"
 	"github.com/parvez0/wabacli/log"
 	"os"
 	"reflect"
 )
 
-const  (
-	IgnoreFieldAuth = "Auth"
+var (
+	ConfigClusterHeaders = []string{"Number", "Name", "Insecure", "Server"}
 )
 
 type TableWriter struct {
@@ -40,24 +42,24 @@ func NewTableWriter(data interface{}) *TableWriter {
 	}
 }
 
-func (tw *TableWriter)WriteHeaders() {
-	if reflect.ValueOf(tw.Data).Kind() != reflect.Struct {
-		log.Panic("expected struct found ", reflect.TypeOf(tw.Data))
-	}
-	val := reflect.TypeOf(tw.Data)
-	var keys []string
-	for i := 0; i < val.NumField(); i++ {
-		if val.Field(i).Name == IgnoreFieldAuth {
-			continue
+func (tw *TableWriter)ProcessData() {
+	switch tw.Data.(type) {
+	case []config.Cluster:
+		tw.TW.SetHeader(ConfigClusterHeaders)
+		clusters := tw.Data.([]config.Cluster)
+		var data [][]string
+		for _, v := range clusters {
+			val := reflect.ValueOf(v)
+			var row []string
+			for _, h := range ConfigClusterHeaders {
+				row = append(row, fmt.Sprintf("%v", val.FieldByName(h)))
+			}
+			data = append(data, row)
 		}
-		keys = append(keys, val.Field(i).Name)
+		tw.TW.AppendBulk(data)
+	default:
+		log.Panic("failed to process data for table writer")
 	}
-	log.Debug("got headers, for table writer -", keys)
-	tw.TW.SetHeader(keys)
-}
-
-func (tw *TableWriter)WriteData()  {
-	tw.TW.Append([]string{"oiasjdfojsadfasdfsadfasdfasdfasdfasdfasdfasf", "localhost", "nemsa", "Insecure", "this"})
 }
 
 func (tw *TableWriter)Render()  {
