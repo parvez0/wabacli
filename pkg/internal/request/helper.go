@@ -57,12 +57,12 @@ func NewClient( cluster *config.Cluster) *Client {
 		Jar:           nil,
 		Timeout:       30 * time.Second,
 	}
-	client.BasePath = cluster.Server
 	headers := http.Header{}
+	headers.Add("Content-Type", "application/json")
+	client.BasePath = cluster.Server
 	if cluster.Auth != "" {
 		headers.Add("Authorization", "Bearer " + cluster.Auth)
 	}
-	headers.Add("Content-Type", "application/json")
 	client.Headers = headers
 	return &client
 }

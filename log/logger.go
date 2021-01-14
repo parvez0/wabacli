@@ -111,3 +111,4 @@ func Panic(msgs ...interface{}) {
 	}
 	panic(processMsg("", msgs ...))
 }
+

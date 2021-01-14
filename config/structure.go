@@ -12,14 +12,17 @@ type Configuration struct {
 // Auth is authentication generated after login
 // Server is the base url of the account
 // Name (optional) is the name of the cluster
+// CountryCode is the officially assigned code
 // Number is the phone number of the cluster
 // VerifySSL will define if ssl needs to be verified during the
 // api call, defaults to true
 type Cluster struct {
 	Auth string
-	Server string
 	Name string
-	Number string
-	Insecure bool
 	Context string
+	CountryCode string `validate:"required"`
+	Number string `validate:"required"`
+	Server string `validate:"required"`
+	Insecure bool `validate:"required"`
+	Username string `validate:"required"`
 }

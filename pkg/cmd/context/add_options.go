@@ -4,17 +4,15 @@ import (
 	"encoding/json"
 	"github.com/parvez0/wabacli/config"
 	"github.com/parvez0/wabacli/log"
+	"github.com/parvez0/wabacli/pkg/errutil/badrequest"
+	"github.com/parvez0/wabacli/pkg/utils/validator"
 	"reflect"
 )
 
 type AddOptions struct {
 	Config *config.Configuration
-	Server string
-	ClusterName string
-	CountryCode string
-	Number string
-	Username string
-	Password string
+	Cluster *config.Cluster
+	Password string `validate:"required"`
 	Reset bool
 	NewPassword string
 	Json string
@@ -40,6 +38,28 @@ func (ap *AddOptions) Parse()  {
 
 
 func (ap *AddOptions) Validate()  {
+	log.Debug("validating fields before processing")
+	errs := validator.Validate(ap)
+	if len(errs) > 0 {
+		log.Error(errs)
+	}
+}
+
+func (ap *AddOptions) ResetPassword()  {
+	if ap.Reset {
+		log.Debug("validating fields before processing")
+		if ap.NewPassword == "" {
+			log.Error(badrequest.BadRequest{
+				Code:        400,
+				Title:       "Required field missing",
+				Description: "new_password is required, if reset is enable",
+			})
+		}
+
+	}
+}
+
+func (ap *AddOptions) Login()  {
 	log.Debug("validating fields before processing")
 	val := reflect.ValueOf(ap)
 	for i := 0; i < val.NumField(); i++ {

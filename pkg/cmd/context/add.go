@@ -31,12 +31,12 @@ func NewDefaultAddCmd(c *config.Configuration) *cobra.Command {
 		Example: addExample,
 		Run: addAccount(ap),
 	}
-	cmd.Flags().StringVarP(&ap.Server, "server", "s", "https://localhost", "whatsapp infra server address")
 	cmd.Flags().StringVarP(&ap.Json, "json", "js", "", "json object string with all information")
-	cmd.Flags().StringVarP(&ap.ClusterName, "cluster-name", "cn", "", "name for your cluster entry in config file")
-	cmd.Flags().StringVarP(&ap.Number, "number", "n", "", "whatsapp account number connected to cluster without country code")
-	cmd.Flags().StringVarP(&ap.CountryCode, "country-code", "cc", "", "assigned country code")
-	cmd.Flags().StringVarP(&ap.Username, "username", "u", "admin", "whatsapp account admin username")
+	cmd.Flags().StringVarP(&ap.Cluster.Server, "server", "s", "https://localhost", "whatsapp infra server address")
+	cmd.Flags().StringVarP(&ap.Cluster.Name, "cluster-name", "cn", "", "name for your cluster entry in config file")
+	cmd.Flags().StringVarP(&ap.Cluster.Number, "number", "n", "", "whatsapp account number connected to cluster without country code")
+	cmd.Flags().StringVarP(&ap.Cluster.CountryCode, "country-code", "cc", "", "assigned country code")
+	cmd.Flags().StringVarP(&ap.Cluster.Username, "username", "u", "admin", "whatsapp account admin username")
 	cmd.Flags().StringVarP(&ap.Password, "password", "p", "", "whatsapp account admin password")
 	cmd.Flags().BoolVarP(&ap.Reset, "reset", "r", false, "reset initial password, if specified new_password is required")
 	cmd.Flags().StringVarP(&ap.NewPassword, "new-password", "np", "", "whatsapp account new admin password after reset")
