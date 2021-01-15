@@ -7,12 +7,15 @@ import (
 	"github.com/parvez0/wabacli/pkg/cmd/context"
 	"github.com/parvez0/wabacli/pkg/errutil/badrequest"
 	"github.com/parvez0/wabacli/pkg/errutil/handler"
+	handler2 "github.com/parvez0/wabacli/pkg/internal/handler"
 	"github.com/parvez0/wabacli/pkg/internal/request"
 	"net/http"
 )
 
-func Login(ap *context.AddOptions, ) (string, error) {
-	client := request.NewClient(ap.Cluster)
+
+
+func Login(ap *context.AddOptions) string {
+	client := request.NewClient(&ap.Cluster)
 	reqBody := make(map[string]string)
 	log.Debug("initiating the login procedure")
 	if ap.Reset {
@@ -39,10 +42,14 @@ func Login(ap *context.AddOptions, ) (string, error) {
 	}
 	buf, err := res.GetBody()
 	handler.FatalError(fmt.Errorf("failed to process the login response: %s", err.Error()))
+	var loginResp handler2.LoginResponse
+	err = json.Unmarshal(buf, &loginResp)
+	handler.FatalError(err)
 	js, err := json.MarshalIndent(buf, "", "  ")
 	if err != nil {
 		handler.FatalError(fmt.Errorf("failed to parse response: %s", string(buf)))
 	}
-	handler.JsonResponse(string(js))
-	return "", nil
+	handler2.JsonResponse(string(js))
+	auth := loginResp.Users[0].Token
+	return auth
 }

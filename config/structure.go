@@ -23,6 +23,6 @@ type Cluster struct {
 	CountryCode string `validate:"required"`
 	Number string `validate:"required"`
 	Server string `validate:"required"`
-	Insecure bool `validate:"required"`
 	Username string `validate:"required"`
+	Insecure bool
 }

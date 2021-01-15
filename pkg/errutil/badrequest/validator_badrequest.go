@@ -9,5 +9,5 @@ type BadRequest struct {
 }
 
 func (r *BadRequest) Error() string {
-	return fmt.Sprintf("%s; %s", r.Title, r.Description)
+	return fmt.Sprintf("%s", r.Description)
 }

@@ -25,26 +25,30 @@ var (
 func NewDefaultAddCmd(c *config.Configuration) *cobra.Command {
 	ap := NewAddOptions(c)
 	cmd := &cobra.Command{
-		Use: "add [--cluster-name|-cn, --number|-n, --country_code|-cc, --username|-u, --password|-p]",
+		Use: "add [--cluster-name|-g, --number|-n, --country_code|-c, --username|-u, --password|-p]",
 		Short: i18n.T("Add a new cluster"),
 		Long: addLong,
 		Example: addExample,
 		Run: addAccount(ap),
 	}
-	cmd.Flags().StringVarP(&ap.Json, "json", "js", "", "json object string with all information")
+	cmd.Flags().StringVarP(&ap.Json, "json", "j", "", "json object string with all information")
 	cmd.Flags().StringVarP(&ap.Cluster.Server, "server", "s", "https://localhost", "whatsapp infra server address")
-	cmd.Flags().StringVarP(&ap.Cluster.Name, "cluster-name", "cn", "", "name for your cluster entry in config file")
+	cmd.Flags().StringVarP(&ap.Cluster.Name, "cluster-name", "g", "", "name for your cluster entry in config file")
 	cmd.Flags().StringVarP(&ap.Cluster.Number, "number", "n", "", "whatsapp account number connected to cluster without country code")
-	cmd.Flags().StringVarP(&ap.Cluster.CountryCode, "country-code", "cc", "", "assigned country code")
+	cmd.Flags().StringVarP(&ap.Cluster.CountryCode, "country-code", "c", "", "assigned country code")
 	cmd.Flags().StringVarP(&ap.Cluster.Username, "username", "u", "admin", "whatsapp account admin username")
 	cmd.Flags().StringVarP(&ap.Password, "password", "p", "", "whatsapp account admin password")
 	cmd.Flags().BoolVarP(&ap.Reset, "reset", "r", false, "reset initial password, if specified new_password is required")
-	cmd.Flags().StringVarP(&ap.NewPassword, "new-password", "np", "", "whatsapp account new admin password after reset")
+	cmd.Flags().StringVarP(&ap.NewPassword, "new-password", "o", "", "whatsapp account new admin password after reset")
 	return cmd
 }
 
 func addAccount(ap *AddOptions) func(*cobra.Command, []string) {
 	return func(cmd *cobra.Command, args []string) {
+		//if len(args) == 0 {
+		//	cmd.Help()
+		//	return
+		//}
 		ap.Parse()
 		ap.Validate()
 		ap.ResetPassword()

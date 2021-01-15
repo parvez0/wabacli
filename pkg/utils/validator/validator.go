@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"github.com/parvez0/wabacli/pkg/errutil/badrequest"
 	"reflect"
 	"strings"
@@ -32,6 +33,9 @@ type RequiredFields struct {}
 func Validate(data interface{}) []error {
 	var errs []error
 	rval := reflect.ValueOf(data)
+	if rval.Kind() == reflect.Ptr {
+		rval = reflect.Indirect(rval)
+	}
 	for i:=0; i < rval.NumField(); i++ {
 		tag := rval.Type().Field(i).Tag.Get(string(TagName))
 		if tag == "" || tag == "-" {
@@ -39,11 +43,11 @@ func Validate(data interface{}) []error {
 		}
 		ops := strings.Split(tag, ",")
 		for _, v := range ops {
-			validator := getValidatorFromTag(v)
+			validator := getValidatorFromTag(Type(v))
 			if validator == nil {
 				continue
 			}
-			err := validator.Validate(rval.Field(i).String(), rval.Field(i).Interface())
+			err := validator.Validate(rval.Type().Field(i).Name, rval.Field(i).Interface())
 			if err != nil {
 				errs = append(errs, err)
 			}
@@ -53,11 +57,14 @@ func Validate(data interface{}) []error {
 }
 
 func (re *RequiredFields) Validate(field string, val interface{}) error {
-	if s := val.(string); s == "" {
-		return &badrequest.BadRequest{
-			Code:        400,
-			Title:       "Required filed not provided",
-			Description: field + " is required, provided empty",
+	switch reflect.ValueOf(val).Kind() {
+	case reflect.String:
+		if s := val.(string); s == "" {
+			return &badrequest.BadRequest{
+				Code:        400,
+				Title:       "Required filed not provided",
+				Description: fmt.Sprintf("ValidationError(RequiredFiled) missing required field \"%s\";", field),
+			}
 		}
 	}
 	return nil

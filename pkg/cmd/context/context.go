@@ -36,5 +36,6 @@ func NewContextCommand(c *config.Configuration) *cobra.Command {
 		},
 	}
 	cmd.AddCommand(NewGetCmdWithConfig(c))
+	cmd.AddCommand(NewDefaultAddCmd(c))
 	return cmd
 }
