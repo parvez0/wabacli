@@ -18,8 +18,10 @@ var (
 	once sync.Once
 	config *Configuration
 	vp *viper.Viper
+
 )
 
+// TODO add auth expiry time to config
 // New provides a singleton for creating the configuration
 // Once handles the cases where multiple routines are trying
 // to initialize the config file
@@ -63,7 +65,7 @@ func initializeConfig() (*Configuration, error)  {
 			Auth: "",
 			Server: DefaultServer,
 			Name: "Default Server",
-			Number: "",
+			Number: 987654321,
 			Context: DefaultCurrentContext,
 			Insecure: true,
 		},
@@ -92,7 +94,7 @@ func initializeConfig() (*Configuration, error)  {
 	vp.WatchConfig()
 	vp.OnConfigChange(func(in fsnotify.Event) {
 		log.Debug("config change detected: ", in.Name, in.Op.String(), ", updating to latest")
-		vp.WriteConfig()
+		_ = vp.WriteConfig()
 	})
 	return config, nil
 }
@@ -109,16 +111,19 @@ func removeDefaultElement(c []Cluster) (clus []Cluster) {
 	return
 }
 
+// UpdateConfig will update the config file to latest
+// after addition or removal of an account from the cluster
 func UpdateConfig(cluster Cluster) error {
 	c, err := GetConfig()
 	if err != nil {
 		return err
 	}
-	clus := removeDefaultElement(c.Clusters)
-	c.Clusters = append(clus, cluster)
+	// removing the default element from the slice
+	c.Clusters = removeDefaultElement(c.Clusters)
+	c.Clusters = append(c.Clusters, cluster)
 	vp.Set("current_context", cluster.Context)
 	vp.Set("current_cluster", cluster)
 	vp.Set("clusters", c.Clusters)
-	vp.WriteConfig()
+	_ = vp.WriteConfig()
 	return nil
 }

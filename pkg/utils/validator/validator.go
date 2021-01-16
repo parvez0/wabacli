@@ -57,14 +57,21 @@ func Validate(data interface{}) []error {
 }
 
 func (re *RequiredFields) Validate(field string, val interface{}) error {
+	badReq := &badrequest.BadRequest{
+		Code:        400,
+		Title:       "Required filed not provided",
+		Description: fmt.Sprintf("ValidationError(RequiredFiled) missing required field \"%s\";", field),
+	}
 	switch reflect.ValueOf(val).Kind() {
 	case reflect.String:
 		if s := val.(string); s == "" {
-			return &badrequest.BadRequest{
-				Code:        400,
-				Title:       "Required filed not provided",
-				Description: fmt.Sprintf("ValidationError(RequiredFiled) missing required field \"%s\";", field),
-			}
+			badReq.Description = fmt.Sprintf("ValidationError(RequiredFiled) missing required field \"%s\";", field)
+			return badReq
+		}
+	case reflect.Int:
+		if s := val.(int); s == 0 {
+			badReq.Description = fmt.Sprintf("ValidationError(RequiredFiled) missing required field \"%s\";", field)
+			return badReq
 		}
 	}
 	return nil

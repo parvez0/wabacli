@@ -35,6 +35,10 @@ func (ap *AddOptions) Parse()  {
 	if err != nil {
 		log.Error("json parse failed: ", err)
 	}
+	err = json.Unmarshal([]byte(ap.Json), &ap.Cluster)
+	if err != nil {
+		log.Error("json parse failed: ", err)
+	}
 	log.Debug("parsed values into struct fields: ", ap)
 }
 
@@ -47,7 +51,7 @@ func (ap *AddOptions) Validate()  {
 	if len(errs) > 0 {
 		handler.FatalError(fmt.Errorf("validating cluster parameters - %v", errs))
 	}
-	ap.Cluster.Context = ap.Cluster.Number
+	ap.Cluster.Context = string(ap.Cluster.Number)
 }
 
 func (ap *AddOptions) ResetPassword()  {
