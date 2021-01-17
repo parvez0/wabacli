@@ -47,6 +47,7 @@ func (ap *AddOptions) Validate()  {
 	if len(errs) > 0 {
 		handler.FatalError(fmt.Errorf("validating cluster parameters - %v", errs))
 	}
+	ap.Cluster.Context = ap.Cluster.Number
 }
 
 func (ap *AddOptions) ResetPassword()  {
@@ -68,5 +69,5 @@ func (ap *AddOptions) Login()  {
 }
 
 func (ap *AddOptions) save()  {
-	config.Save()
+	config.UpdateConfig(ap.Cluster)
 }

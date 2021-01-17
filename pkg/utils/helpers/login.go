@@ -43,6 +43,7 @@ func Login(c *config.Cluster, pwd string, np string) string {
 	log.Debug(fmt.Sprintf("login request options: %+v", opts))
 	req, err := client.NewRequest(opts)
 	handler.FatalError(err)
+	// Making the api call
 	res, err := req.Send()
 	handler.FatalError(err)
 	log.Debug("login request successful with status_code:", res.GetStatusCode())

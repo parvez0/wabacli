@@ -2,20 +2,22 @@ package config
 
 import (
 	"fmt"
+	"github.com/fsnotify/fsnotify"
 	"github.com/parvez0/wabacli/log"
 	"github.com/spf13/viper"
+	"os"
 	"sync"
 )
 
 const (
 	DefaultCurrentContext = "default"
 	DefaultServer = "https://localhost"
-	ConfigFilePath = "$HOME/.waba"
 )
 
 var (
 	once sync.Once
 	config *Configuration
+	vp *viper.Viper
 )
 
 // New provides a singleton for creating the configuration
@@ -31,16 +33,32 @@ func GetConfig() (c *Configuration, err error) {
 	return
 }
 
+func createConfigDirectory()  {
+	cp := "/etc/wabactl"
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Debug(fmt.Sprintf("home directory not found %s. using '%s/config.yml' directory as default config path", err.Error(), cp))
+	} else {
+		cp = home + "/.waba"
+	}
+	err = os.Mkdir(cp, 0700)
+	if ex := os.IsNotExist(err); ex {
+		log.Error(fmt.Sprintf("failed to create config file at '%s'; %s", cp, err.Error()))
+	}
+}
+
 // initializeConfig will read the config file from home directory
 // and decodes it into Configuration structure
 func initializeConfig() (*Configuration, error)  {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("$HOME/.waba/")
-	viper.AddConfigPath(".")
-	viper.AutomaticEnv()
+	vp = viper.New()
+	vp.SetConfigName("config")
+	vp.SetConfigType("yml")
+	vp.AddConfigPath("$HOME/.waba/")
+	vp.AddConfigPath("/etc/wabactl")
+	vp.AddConfigPath(".")
+	vp.AutomaticEnv()
 
-	viper.SetDefault("clusters", []Cluster{
+	vp.SetDefault("clusters", []Cluster{
 		{
 			Auth: "",
 			Server: DefaultServer,
@@ -50,15 +68,16 @@ func initializeConfig() (*Configuration, error)  {
 			Insecure: true,
 		},
 	})
-	viper.SetDefault("current_context", DefaultCurrentContext)
-	if err := viper.ReadInConfig(); err != nil {
+
+	vp.SetDefault("current_context", DefaultCurrentContext)
+	if err := vp.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Debug(fmt.Sprintf("config file doesn't exits at '%s', using default", ConfigFilePath))
+			createConfigDirectory()
 		} else {
 			return nil, err
 		}
 	}
-	err := viper.Unmarshal(&config)
+	err := vp.Unmarshal(&config)
 	if err != nil {
 		return config, err
 	}
@@ -70,9 +89,36 @@ func initializeConfig() (*Configuration, error)  {
 			}
 		}
 	}
+	vp.WatchConfig()
+	vp.OnConfigChange(func(in fsnotify.Event) {
+		log.Debug("config change detected: ", in.Name, in.Op.String(), ", updating to latest")
+		vp.WriteConfig()
+	})
 	return config, nil
 }
 
-func Save() {
-	viper.SafeWriteConfig()
+func removeDefaultElement(c []Cluster) (clus []Cluster) {
+	for i, v := range c {
+		if v.Context == DefaultCurrentContext {
+			c[len(c) - 1], c[i] = c[i], c[len(c) - 1]
+			clus = c[:len(c) - 1]
+			return
+		}
+	}
+	clus = c
+	return
+}
+
+func UpdateConfig(cluster Cluster) error {
+	c, err := GetConfig()
+	if err != nil {
+		return err
+	}
+	clus := removeDefaultElement(c.Clusters)
+	c.Clusters = append(clus, cluster)
+	vp.Set("current_context", cluster.Context)
+	vp.Set("current_cluster", cluster)
+	vp.Set("clusters", c.Clusters)
+	vp.WriteConfig()
+	return nil
 }
