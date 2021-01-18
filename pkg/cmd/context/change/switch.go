@@ -15,7 +15,7 @@ var (
 	`))
 	setExample = templates.Examples(i18n.T(`
         # Set current context
-        wabactl context change <number>
+        wabactl context change <number | name>
 	`))
 )
 

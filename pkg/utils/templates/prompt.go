@@ -1,6 +1,9 @@
 package templates
 
-import "github.com/manifoldco/promptui"
+import (
+	"fmt"
+	"github.com/manifoldco/promptui"
+)
 
 func NewPromptSelect(label string, items []string) (string, error) {
 	 prompt := promptui.Select{
@@ -9,4 +12,19 @@ func NewPromptSelect(label string, items []string) (string, error) {
 	}
 	_, result, err := prompt.Run()
 	return result, err
+}
+
+func NewPromptPassword() (string, error) {
+	validate := func(input string) error {
+		if len(input) < 1 {
+			return fmt.Errorf("password must not be empty")
+		}
+		return nil
+	}
+	prompt := promptui.Prompt{
+		Label:    "Password",
+		Validate: validate,
+		Mask:     '*',
+	}
+	return prompt.Run()
 }

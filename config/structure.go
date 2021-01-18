@@ -9,9 +9,9 @@ import (
 // Configuration defines the basic structure of config file
 // Config can be provided in json, yaml or from environment
 type Configuration struct {
-	Clusters []Cluster `json:"clusters" yaml:"clusters"`
-	CurrentContext string `json:"current_context" yaml:"current_context"`
-	CurrentCluster Cluster `json:"current_cluster" yaml:"current_cluster"`
+	Clusters []Cluster `mapstructure:"clusters" json:"clusters"`
+	CurrentContext string `mapstructure:"current_context" json:"current_context"`
+	CurrentCluster Cluster `mapstructure:"current_cluster" json:"current_cluster"`
 }
 
 // Cluster holds the basic information of the connected cluster

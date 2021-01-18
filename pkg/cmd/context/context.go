@@ -6,6 +6,7 @@ import (
 	"github.com/parvez0/wabacli/pkg/cmd/context/change"
 	delete2 "github.com/parvez0/wabacli/pkg/cmd/context/del"
 	"github.com/parvez0/wabacli/pkg/cmd/context/get"
+	"github.com/parvez0/wabacli/pkg/cmd/context/refresh"
 	"github.com/parvez0/wabacli/pkg/utils/templates"
 	"github.com/spf13/cobra"
 	"k8s.io/kubectl/pkg/util/i18n"
@@ -44,5 +45,6 @@ func NewContextCommand(c *config.Configuration) *cobra.Command {
 	cmd.AddCommand(add.NewDefaultAddCmd(c))
 	cmd.AddCommand(change.NewDefaultSetCmd(c))
 	cmd.AddCommand(delete2.NewDefaultDeleteCmd(c))
+	cmd.AddCommand(refresh.NewRefreshCmd(c))
 	return cmd
 }
