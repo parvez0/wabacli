@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/parvez0/wabacli/log"
+	"github.com/parvez0/wabacli/pkg/errutil/handler"
 	"github.com/spf13/viper"
 	"os"
 	"sync"
@@ -45,7 +46,7 @@ func createConfigDirectory()  {
 	}
 	err = os.Mkdir(cp, 0700)
 	if ex := os.IsNotExist(err); ex {
-		log.Error(fmt.Sprintf("failed to create config file at '%s'; %s", cp, err.Error()))
+		handler.FatalError(fmt.Errorf("failed to create config file at '%s'; %s", cp, err.Error()))
 	}
 }
 
@@ -97,50 +98,4 @@ func initializeConfig() (*Configuration, error)  {
 		_ = vp.WriteConfig()
 	})
 	return config, nil
-}
-
-func removeElement(c []Cluster, ele string, num int) (clus []Cluster) {
-	for i, v := range c {
-		if v.Context == ele || v.Number == num {
-			c[len(c) - 1], c[i] = c[i], c[len(c) - 1]
-			clus = c[:len(c) - 1]
-			return
-		}
-	}
-	clus = c
-	return
-}
-
-// UpdateConfig will update the config file to latest
-// after addition or removal of an account from the cluster
-func UpdateConfig(cluster Cluster) error {
-	c, err := GetConfig()
-	if err != nil {
-		return err
-	}
-	// removing the default element from the slice
-	c.Clusters = removeElement(c.Clusters, DefaultCurrentContext, 0)
-	c.Clusters = removeElement(c.Clusters, "", cluster.Number)
-	c.Clusters = append(c.Clusters, cluster)
-	vp.Set("current_context", cluster.Context)
-	vp.Set("current_cluster", cluster)
-	vp.Set("clusters", c.Clusters)
-	_ = vp.WriteConfig()
-	return nil
-}
-
-func UpdateContext(context string) error {
-	c, err := GetConfig()
-	if err != nil {
-		return err
-	}
-	for _, v := range c.Clusters {
-		if v.Context == context {
-			vp.Set("current_context", v.Context)
-			vp.Set("current_cluster", v)
-			_ = vp.WriteConfig()
-			break
-		}
-	}
-	return nil
 }

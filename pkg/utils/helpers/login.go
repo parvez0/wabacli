@@ -32,7 +32,7 @@ func Login(c *config.Cluster, pwd string, np string) string {
 	headers.Set("Content-Type", "application/json")
 	headers.Set("Authorization", "Basic " + base64.StdEncoding.EncodeToString([]byte(c.Username + ":" + pwd)))
 	//Creating object the options for the request call by
-	// default url will be switch to https://localhost if the
+	// default url will be change to https://localhost if the
 	// server is not running on
 	opts := request.Options{
 		Url:     "/v1/users/login",

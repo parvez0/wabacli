@@ -1,11 +1,11 @@
-package _switch
+package change
 
 import (
 	"fmt"
-	"github.com/manifoldco/promptui"
 	"github.com/parvez0/wabacli/config"
 	"github.com/parvez0/wabacli/log"
-	"regexp"
+	"github.com/parvez0/wabacli/pkg/errutil/handler"
+	"github.com/parvez0/wabacli/pkg/utils/templates"
 )
 
 const (
@@ -20,22 +20,28 @@ type SwitchOptions struct {
 	Query string
 }
 
-func (s *SwitchOptions) Validate(c []string)  {
+func NewSwitchOptions(c *config.Configuration) *SwitchOptions {
+	return &SwitchOptions{
+		Config: c,
+	}
+}
+
+func (s *SwitchOptions) Validate(c []string) error {
 	if len(c) > 1 {
-		log.Error("")
+		return fmt.Errorf("select a single account")
 	}
 	if len(c) == 0 {
 		s.Type = ListAllAccounts
-		return
+		return nil
 	}
 	s.Query = c[0]
 	if s.Config.CurrentContext == c[0] || s.Config.CurrentCluster.Name == c[0] {
 		log.Debug(fmt.Sprintf("context '%s' is already active", c[0]))
 		s.Type = NoChange
-		return
+		return nil
 	}
 	s.Type = PartialMatch
-	return
+	return nil
 }
 
 func (s *SwitchOptions) Run()  {
@@ -57,14 +63,14 @@ func (s *SwitchOptions) listAll() {
 		clus[i] = c.Context
 	}
 	log.Debug("found the following context in config: ", clus)
-	result, err := s.prompt(clus)
+	result, err := templates.NewPromptSelect("Select Account", clus)
 	if err != nil {
-		log.Error("prompt failed with error: ", err)
+		handler.FatalError(fmt.Errorf("prompt failed with error: %v", err))
 	}
 	log.Debug("activating selected context '" + result + "'")
-	err = config.UpdateContext(result)
+	err = s.Config.UpdateContext(result)
 	if err != nil {
-		log.Error("failed to update context: ", err)
+		handler.FatalError(fmt.Errorf("failed to update context: %v", err))
 	}
 }
 
@@ -72,58 +78,36 @@ func (s *SwitchOptions) listAll() {
 // with the existing accounts, if the account not
 // found it will exit with error code 1
 func (s *SwitchOptions) partialMatch()  {
-	// creating a regexp for the query provided
-	reg, err := regexp.Compile(fmt.Sprintf(`%s`, s.Query))
-	if err != nil {
-		log.Error("failed to create regex exp: ", err)
-	}
-	var accs []string
-
-	// getting all the matched accounts from the cluster
-	for _, v := range s.Config.Clusters {
-		if matched := reg.MatchString(v.Context); matched {
-			accs = append(accs, v.Context)
-		}
-	}
+	l, accs := s.Config.MatchAcc(s.Query)
 	var result string
-	if len(accs) > 1 {
-		result, err = s.prompt(accs)
+	var err error
+	if l > 1 {
+		result, err = templates.NewPromptSelect("Select Account", accs)
 		if err != nil {
-			log.Error("prompt failed with error: ", err)
+			handler.FatalError(fmt.Errorf("prompt failed with error: %v", err))
 		}
 	}
 
-	if len(accs) == 0 {
-		log.Error(fmt.Sprintf("account with name '%s', not found", s.Query))
+	if l == 0 {
+		handler.FatalError(fmt.Errorf("account with name '%s', not found", s.Query))
 	}
 
-	if len(accs) == 1 {
+	if l == 1 {
 		if accs[0] == s.Query {
 			result = accs[0]
 		} else {
-			result, err = s.prompt(accs)
+			result, err = templates.NewPromptSelect("Select Account", accs)
 			if err != nil {
-				log.Error("prompt failed with error: ", err)
+				handler.FatalError(fmt.Errorf("prompt failed with error: %v", err))
 			}
 		}
 	}
 
 	log.Debug("activating selected context '" + result + "'")
-	err = config.UpdateContext(result)
+	err = s.Config.UpdateContext(result)
 	if err != nil {
-		log.Error("failed to update context: ", err)
+		handler.FatalError(fmt.Errorf("failed to update context: %v", err))
 	}
-}
-
-// prompt will show multiple selectable options to the user
-func (s *SwitchOptions) prompt(items []string) (string, error) {
-	log.Debug("multiple accounts detected, ", items)
-	prompt := promptui.Select{
-		Label: "Select Account",
-		Items: items,
-	}
-	_, result, err := prompt.Run()
-	return result, err
 }
 
 

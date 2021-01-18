@@ -34,11 +34,11 @@ func (ap *AddOptions) Parse()  {
 	log.Debug("parsing json object into struct")
 	err := json.Unmarshal([]byte(ap.Json), ap)
 	if err != nil {
-		log.Error("json parse failed: ", err)
+		handler.FatalError(fmt.Errorf("json parse failed: %v", err))
 	}
 	err = json.Unmarshal([]byte(ap.Json), &ap.Cluster)
 	if err != nil {
-		log.Error("json parse failed: ", err)
+		handler.FatalError(fmt.Errorf("json parse failed: %v", err))
 	}
 	log.Debug("parsed values into struct fields: ", ap)
 }
@@ -60,7 +60,7 @@ func (ap *AddOptions) ResetPassword()  {
 	if ap.Reset {
 		log.Debug("validating fields before processing")
 		if ap.NewPassword == "" {
-			log.Error(badrequest.BadRequest{
+			handler.FatalError(&badrequest.BadRequest{
 				Code:        400,
 				Title:       "Required field missing",
 				Description: "NewPassword is required, if reset is enable",
@@ -75,5 +75,5 @@ func (ap *AddOptions) Login()  {
 }
 
 func (ap *AddOptions) save()  {
-	config.UpdateConfig(ap.Cluster)
+	ap.Config.AddCluster(ap.Cluster)
 }
