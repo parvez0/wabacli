@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+	"github.com/parvez0/wabacli/log"
 	"github.com/spf13/viper"
 	"sync"
 )
@@ -8,6 +10,7 @@ import (
 const (
 	DefaultCurrentContext = "default"
 	DefaultServer = "https://localhost"
+	ConfigFilePath = "$HOME/.waba"
 )
 
 var (
@@ -50,7 +53,7 @@ func initializeConfig() (*Configuration, error)  {
 	viper.SetDefault("current_context", DefaultCurrentContext)
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			viper.WriteConfig()
+			log.Debug(fmt.Sprintf("config file doesn't exits at '%s', using default", ConfigFilePath))
 		} else {
 			return nil, err
 		}
@@ -68,4 +71,8 @@ func initializeConfig() (*Configuration, error)  {
 		}
 	}
 	return config, nil
+}
+
+func Save() {
+	viper.SafeWriteConfig()
 }

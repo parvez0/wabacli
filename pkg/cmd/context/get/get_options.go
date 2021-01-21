@@ -1,4 +1,4 @@
-package context
+package get
 
 import (
 	"github.com/parvez0/wabacli/config"

@@ -1,4 +1,4 @@
-package context
+package get
 
 import (
 	"github.com/parvez0/wabacli/config"
@@ -33,10 +33,10 @@ func NewGetOptions(c *config.Configuration) *GetOptions {
 func NewGetCmdWithConfig(c *config.Configuration) *cobra.Command {
 	opts := NewGetOptions(c)
 	cmd := &cobra.Command{
-		Use: "get [(-s|--selector=<name, number>)] [flags]",
-		Long: getLong,
-		Example: getExample,
-		Run: getAccountsWithOptions(opts),
+		Use:        "get [(-s|--selector=<name, number>)] [flags]",
+		Long:       getLong,
+		Example:    getExample,
+		Run:        getAccountsWithOptions(opts),
 		SuggestFor: []string{"list", "accounts"},
 	}
 	cmd.Flags().StringVarP(&opts.Selector,"selector", "s", "", i18n.T("unique value which can be used to fetch account, it can be name or number without country code"))

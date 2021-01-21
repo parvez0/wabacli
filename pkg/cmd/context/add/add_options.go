@@ -1,4 +1,4 @@
-package context
+package add
 
 import (
 	"encoding/json"
@@ -63,5 +63,10 @@ func (ap *AddOptions) ResetPassword()  {
 }
 
 func (ap *AddOptions) Login()  {
-	helpers.Login(ap)
+	ap.Cluster.Auth = helpers.Login(&ap.Cluster, ap.Password, ap.NewPassword)
+	ap.save()
+}
+
+func (ap *AddOptions) save()  {
+	config.Save()
 }

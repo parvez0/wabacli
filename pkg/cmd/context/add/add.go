@@ -1,4 +1,4 @@
-package context
+package add
 
 import (
 	"github.com/parvez0/wabacli/config"
@@ -25,11 +25,11 @@ var (
 func NewDefaultAddCmd(c *config.Configuration) *cobra.Command {
 	ap := NewAddOptions(c)
 	cmd := &cobra.Command{
-		Use: "add [--cluster-name|-g, --number|-n, --country_code|-c, --username|-u, --password|-p]",
-		Short: i18n.T("Add a new cluster"),
-		Long: addLong,
+		Use:     "add [--cluster-name|-g, --number|-n, --country_code|-c, --username|-u, --password|-p]",
+		Short:   i18n.T("Add a new cluster"),
+		Long:    addLong,
 		Example: addExample,
-		Run: addAccount(ap),
+		Run:     addAccount(ap),
 	}
 	cmd.Flags().StringVarP(&ap.Json, "json", "j", "", "json object string with all information")
 	cmd.Flags().StringVarP(&ap.Cluster.Server, "server", "s", "https://localhost", "whatsapp infra server address")
@@ -40,6 +40,7 @@ func NewDefaultAddCmd(c *config.Configuration) *cobra.Command {
 	cmd.Flags().StringVarP(&ap.Password, "password", "p", "", "whatsapp account admin password")
 	cmd.Flags().BoolVarP(&ap.Reset, "reset", "r", false, "reset initial password, if specified new_password is required")
 	cmd.Flags().StringVarP(&ap.NewPassword, "new-password", "o", "", "whatsapp account new admin password after reset")
+	cmd.Flags().BoolVarP(&ap.Cluster.Insecure, "insecure", "i", false, "keep it true if you are using self generated tls")
 	return cmd
 }
 

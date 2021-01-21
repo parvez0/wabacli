@@ -2,6 +2,8 @@ package context
 
 import (
 	"github.com/parvez0/wabacli/config"
+	"github.com/parvez0/wabacli/pkg/cmd/context/add"
+	"github.com/parvez0/wabacli/pkg/cmd/context/get"
 	"github.com/parvez0/wabacli/pkg/utils/templates"
 	"github.com/spf13/cobra"
 	"k8s.io/kubectl/pkg/util/i18n"
@@ -24,6 +26,7 @@ var (
 	`))
 )
 
+// TODO : add a global flag for request timeout
 func NewContextCommand(c *config.Configuration) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "context",
@@ -35,7 +38,7 @@ func NewContextCommand(c *config.Configuration) *cobra.Command {
 			return
 		},
 	}
-	cmd.AddCommand(NewGetCmdWithConfig(c))
-	cmd.AddCommand(NewDefaultAddCmd(c))
+	cmd.AddCommand(get.NewGetCmdWithConfig(c))
+	cmd.AddCommand(add.NewDefaultAddCmd(c))
 	return cmd
 }
