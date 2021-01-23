@@ -35,6 +35,7 @@ func NewGetCmdWithConfig(c *config.Configuration) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:        "get [(-s|--selector=<name, number>)] [flags]",
 		Long:       getLong,
+		Short: 		i18n.T("Display cluster info"),
 		Example:    getExample,
 		Run:        getAccountsWithOptions(opts),
 		SuggestFor: []string{"list", "accounts"},
@@ -50,6 +51,6 @@ func getAccountsWithOptions(o *GetOptions) func(command *cobra.Command, args []s
 }
 
 func getAccountsWithFlags(o *GetOptions) {
-	o.Complete()
+	o.Validate()
 	o.Run()
 }

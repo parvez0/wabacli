@@ -18,7 +18,7 @@ type Configuration struct {
 // api call, defaults to true
 type Cluster struct {
 	Auth string
-	Name string
+	Name string `json:"cluster_name"`
 	Context string
 	CountryCode int `json:"country_code,int" validate:"required"`
 	Number int `json:"number,int" validate:"required"`

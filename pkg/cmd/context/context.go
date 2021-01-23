@@ -4,6 +4,7 @@ import (
 	"github.com/parvez0/wabacli/config"
 	"github.com/parvez0/wabacli/pkg/cmd/context/add"
 	"github.com/parvez0/wabacli/pkg/cmd/context/get"
+	"github.com/parvez0/wabacli/pkg/cmd/context/switch"
 	"github.com/parvez0/wabacli/pkg/utils/templates"
 	"github.com/spf13/cobra"
 	"k8s.io/kubectl/pkg/util/i18n"
@@ -40,5 +41,6 @@ func NewContextCommand(c *config.Configuration) *cobra.Command {
 	}
 	cmd.AddCommand(get.NewGetCmdWithConfig(c))
 	cmd.AddCommand(add.NewDefaultAddCmd(c))
+	cmd.AddCommand(_switch.NewDefaultSetCmd(c))
 	return cmd
 }

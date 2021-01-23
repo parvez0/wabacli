@@ -12,7 +12,7 @@ type GetOptions struct {
 	Headers []string
 }
 
-func (o *GetOptions)Complete() {
+func (o *GetOptions)Validate() {
 	if o.Selector == ""{
 		o.All = true
 	}

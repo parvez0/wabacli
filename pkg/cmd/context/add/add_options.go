@@ -9,6 +9,7 @@ import (
 	"github.com/parvez0/wabacli/pkg/errutil/handler"
 	"github.com/parvez0/wabacli/pkg/utils/helpers"
 	"github.com/parvez0/wabacli/pkg/utils/validator"
+	"strings"
 )
 
 type AddOptions struct {
@@ -51,7 +52,8 @@ func (ap *AddOptions) Validate()  {
 	if len(errs) > 0 {
 		handler.FatalError(fmt.Errorf("validating cluster parameters - %v", errs))
 	}
-	ap.Cluster.Context = string(ap.Cluster.Number)
+	slug := strings.ToLower(strings.Join(strings.Split(ap.Cluster.Name, " "), "_"))
+	ap.Cluster.Context = fmt.Sprintf("%d_%s", ap.Cluster.Number, slug)
 }
 
 func (ap *AddOptions) ResetPassword()  {

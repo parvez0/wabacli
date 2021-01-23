@@ -54,7 +54,7 @@ func createConfigDirectory()  {
 func initializeConfig() (*Configuration, error)  {
 	vp = viper.New()
 	vp.SetConfigName("config")
-	vp.SetConfigType("yml")
+	vp.SetConfigType("yaml")
 	vp.AddConfigPath("$HOME/.waba/")
 	vp.AddConfigPath("/etc/wabactl")
 	vp.AddConfigPath(".")
@@ -99,9 +99,9 @@ func initializeConfig() (*Configuration, error)  {
 	return config, nil
 }
 
-func removeDefaultElement(c []Cluster) (clus []Cluster) {
+func removeElement(c []Cluster, ele string, num int) (clus []Cluster) {
 	for i, v := range c {
-		if v.Context == DefaultCurrentContext {
+		if v.Context == ele || v.Number == num {
 			c[len(c) - 1], c[i] = c[i], c[len(c) - 1]
 			clus = c[:len(c) - 1]
 			return
@@ -119,11 +119,28 @@ func UpdateConfig(cluster Cluster) error {
 		return err
 	}
 	// removing the default element from the slice
-	c.Clusters = removeDefaultElement(c.Clusters)
+	c.Clusters = removeElement(c.Clusters, DefaultCurrentContext, 0)
+	c.Clusters = removeElement(c.Clusters, "", cluster.Number)
 	c.Clusters = append(c.Clusters, cluster)
 	vp.Set("current_context", cluster.Context)
 	vp.Set("current_cluster", cluster)
 	vp.Set("clusters", c.Clusters)
 	_ = vp.WriteConfig()
+	return nil
+}
+
+func UpdateContext(context string) error {
+	c, err := GetConfig()
+	if err != nil {
+		return err
+	}
+	for _, v := range c.Clusters {
+		if v.Context == context {
+			vp.Set("current_context", v.Context)
+			vp.Set("current_cluster", v)
+			_ = vp.WriteConfig()
+			break
+		}
+	}
 	return nil
 }

@@ -49,6 +49,9 @@ func (tw *TableWriter)ProcessData() {
 		clusters := tw.Data.([]config.Cluster)
 		var data [][]string
 		for _, v := range clusters {
+			if v.Context == config.DefaultCurrentContext {
+				continue
+			}
 			val := reflect.ValueOf(v)
 			var row []string
 			for _, h := range ConfigClusterHeaders {
@@ -57,6 +60,9 @@ func (tw *TableWriter)ProcessData() {
 			data = append(data, row)
 		}
 		tw.TW.AppendBulk(data)
+	case []string:
+		clusters := tw.Data.([]string)
+		tw.TW.Append(clusters)
 	default:
 		log.Panic("failed to process data for table writer")
 	}
