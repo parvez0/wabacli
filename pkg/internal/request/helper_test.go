@@ -10,7 +10,7 @@ var cluster = config.Cluster{
 	Auth:     "",
 	Server:   "https://ipinfo.io",
 	Name:     "",
-	Number:   "",
+	Number:   0,
 	Insecure: true,
 	Context:  "",
 }
