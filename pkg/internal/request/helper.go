@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/parvez0/wabacli/config"
 	"github.com/parvez0/wabacli/log"
+	"github.com/parvez0/wabacli/pkg/utils/types"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -61,7 +62,7 @@ func NewClient( cluster *config.Cluster) *Client {
 	headers.Add("Content-Type", "application/json")
 	client.BasePath = cluster.Server
 	if cluster.Auth != "" {
-		headers.Add("Authorization", "Bearer " + cluster.Auth)
+		headers.Add(types.HeaderAuthorization, "Bearer " + cluster.Auth)
 	}
 	client.Headers = headers
 	return &client

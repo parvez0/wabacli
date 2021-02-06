@@ -3,6 +3,7 @@ package cmd
 import (
 	config2 "github.com/parvez0/wabacli/config"
 	"github.com/parvez0/wabacli/pkg/cmd/context"
+	"github.com/parvez0/wabacli/pkg/cmd/send"
 	"github.com/parvez0/wabacli/pkg/utils/templates"
 	"github.com/spf13/cobra"
 )
@@ -11,7 +12,7 @@ var config, _ = config2.GetConfig()
 
 
 // newDefaultWabaCmd
-func newDefaultWabaCmdWithConfig() *cobra.Command {
+func NewDefaultWabaCmdWithConfig() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "wabactl",
 		Short: "wabactl provides a cli to interact with whatsapp business account",
@@ -26,9 +27,10 @@ func newDefaultWabaCmdWithConfig() *cobra.Command {
 		},
 	}
 	cmd.AddCommand(context.NewContextCommand(config))
+	cmd.AddCommand(send.NewDefaultSendCmd(config))
 	return cmd
 }
 
 func Execute()  {
-	newDefaultWabaCmdWithConfig().Execute()
+	NewDefaultWabaCmdWithConfig().Execute()
 }
