@@ -6,6 +6,8 @@ import (
 )
 
 var (
+	// ShortDesc defines a map for all the short description
+	// of the available commands
 	ShortDesc = map[string]string {
 		"text": i18n.T("Send a text message"),
 		"image": i18n.T("Send an image file"),
@@ -13,6 +15,9 @@ var (
 		"audio": i18n.T("Send an audio file"),
 		"video": i18n.T("Send a video file"),
 	}
+	// LongDesc defines a map for all the Long description
+	// of the available commands which explain the function
+	// of each of the subcommand
 	LongDesc = map[string]string{
 		"text": templates.LongDesc(i18n.T(`
 			Send a text message
@@ -50,6 +55,8 @@ var (
 			send to the user
 		`)),
 	}
+	// ExampleDesc defines a map for all the available commands
+	// it shows the current usage of each command all the available flags
 	ExampleDesc = map[string]string{
 		"text": templates.Examples(i18n.T(`
 			# send a text message

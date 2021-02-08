@@ -11,7 +11,7 @@ import (
 var config, _ = config2.GetConfig()
 
 
-// newDefaultWabaCmd
+// NewDefaultWabaCmdWithConfig returns root command for wabactl cli
 func NewDefaultWabaCmdWithConfig() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "wabactl",

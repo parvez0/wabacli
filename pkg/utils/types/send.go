@@ -35,6 +35,9 @@ var (
 	}
 )
 
+// WAMessage defines all the message formats and it's
+// values which will further be process by intermediate
+// functions to send the request to whatsapp
 type WAMessage struct {
 	To            string `json:"to" validate:"required"`
 	Type          string `json:"type" validate:"required"`

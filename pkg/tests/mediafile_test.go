@@ -1,11 +1,13 @@
 package tests
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/parvez0/wabacli/config"
 	"github.com/parvez0/wabacli/pkg/utils/helpers"
 	"github.com/parvez0/wabacli/pkg/utils/types"
 	"gotest.tools/assert"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -47,4 +49,25 @@ func TestUploadMedia(t *testing.T) {
 	byts, err := helpers.UploadMedia(&conf.CurrentCluster, file)
 	assert.NilError(t, err, "failed to upload media")
 	t.Logf("uploaded file - %s", string(byts))
+	var waErr types.WhatsappError
+	json.Unmarshal(byts, &waErr)
+	if len(waErr.Errors) > 0 {
+		assert.Error(t, &waErr, "failed with error")
+	}
+}
+
+func TestSendMessage(t *testing.T)  {
+	conf, err := config.GetConfig()
+	assert.NilError(t, err, "failed to initialize config")
+	msg := fmt.Sprintf("{\"to\":\"%s\",\"type\":\"text\",\"recipient_type\":\"individual\",\"text\":{\"body\":\"hello world\"}}", os.Getenv("TEST_NUMBER"))
+	var req map[string]interface{}
+	_ = json.Unmarshal([]byte(msg), &req)
+	byts, err := helpers.SendMessage(&conf.CurrentCluster, &req)
+	assert.NilError(t, err, "failed with error")
+	t.Logf("message sent - %s", string(byts))
+	var waErr types.WhatsappError
+	json.Unmarshal(byts, &waErr)
+	if len(waErr.Errors) > 0 {
+		assert.Error(t, &waErr, "failed with error")
+	}
 }

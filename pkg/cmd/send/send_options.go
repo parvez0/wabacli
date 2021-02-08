@@ -15,6 +15,9 @@ import (
 
 type Cmd string
 
+// SendOptions groups all the basic types and
+// data which are required to process the user
+// request and send the message to user
 type SendOptions struct {
 	Config *config.Configuration
 	File *types.Media
@@ -24,17 +27,23 @@ type SendOptions struct {
 	FilePath string
 }
 
+// NewSendOptions initializes the SendOptions and returns a pointer to it
 func NewSendOptions(c *config.Configuration) *SendOptions {
 	return &SendOptions{
 		Config: c,
 	}
 }
 
+// GetCmdList returns an array of all the available commands
+// which are currently supported by this cli
 func (s *SendOptions) GetCmdList() []string {
 	return []string{ "text", "image", "document", "video", "audio" }
 }
 
-func (s *SendOptions) GetCommand(arg string, cfg *config.Configuration) *cobra.Command {
+// GetCommand generates a cobra command which will be added as a
+// child command to the send command, it also defines all the ,
+// required parameters that all the subcommands supports
+func (s *SendOptions) GetCommand(arg string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: arg,
 		Short: ShortDesc[arg],
@@ -56,6 +65,8 @@ func (s *SendOptions) GetCommand(arg string, cfg *config.Configuration) *cobra.C
 	return cmd
 }
 
+// Validate will verify if any required field is empty,
+// if the required filed is not provided it will exit.
 func (s *SendOptions) Validate()  {
 	err := validator.Validate(s)
 	msgErr := validator.Validate(s.Message)
@@ -66,6 +77,10 @@ func (s *SendOptions) Validate()  {
 	log.Debug("field validation is successful, proceeding for command parsing")
 }
 
+// Parse further verifies the request body and initiates
+// all the required functions like file reader which will
+// return a Media object which provides the functionality
+// to read and store binary data of a file
 func (s *SendOptions) Parse()  {
 	log.Debug("parsing the fields, to format request payload")
 	switch s.Message.Type {
@@ -90,6 +105,9 @@ func (s *SendOptions) Parse()  {
 	}
 }
 
+// Run executes the commands by uploading the file
+// in case of media message and then sending the
+// message to the user, if any error it will print
 func (s *SendOptions) Run() {
 	mediaId := ""
 	if s.File != nil {
@@ -100,6 +118,9 @@ func (s *SendOptions) Run() {
 	handler2.JsonResponse(resp)
 }
 
+// getRunnable will return the func which can be used to run the specified command
+// this function is required to avoid s.Message.Type being overwritten by other sub
+// commands
 func (s *SendOptions) getRunnable(arg string) func(*cobra.Command, []string) {
 	return func(cmd *cobra.Command, args []string) {
 		s.Message.Type = arg
@@ -109,6 +130,9 @@ func (s *SendOptions) getRunnable(arg string) func(*cobra.Command, []string) {
 	}
 }
 
+// uploadMedia calls the helper UploadMedia function to upload
+// the file and generate the mediaId if any error it will exit
+// with the error received by the api response
 func (s *SendOptions) uploadMedia() string {
 	log.Debug("uploading file to whatsapp for generating media id")
 	byts, err := helpers.UploadMedia(&s.Config.CurrentCluster, s.File)
@@ -128,6 +152,10 @@ func (s *SendOptions) uploadMedia() string {
 	return mediaId
 }
 
+// processBody is an internal function which will remove all the
+// not used fields from the Message struct then it will add the
+// to SendOptions as Request field which will be used for sending
+// the message through api
 func (s *SendOptions) processBody(mediaId string) {
 	switch s.Message.Type {
 	case "audio":
@@ -158,6 +186,11 @@ func (s *SendOptions) processBody(mediaId string) {
 	s.Request = finalBody
 }
 
+// sendMessage calls the helper function SendMessage
+// for sending the message to the user, it will use
+// the Request field which was processed in the previous
+// step as request body and it will exit if encountered
+// any error by print the json output to stdin
 func (s *SendOptions) sendMessage() string {
 	byts, err := helpers.SendMessage(&s.Config.CurrentCluster, &s.Request)
 	if err != nil {

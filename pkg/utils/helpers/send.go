@@ -8,6 +8,7 @@ import (
 	"net/http"
 )
 
+// SendMessage is a helper function to make a http call the whatsapp infra
 func SendMessage(clus *config.Cluster, msg *map[string]interface{}) ([]byte, error) {
 	url := clus.Server + "/v1/messages"
 	client := request.NewClient(clus)
@@ -30,6 +31,7 @@ func SendMessage(clus *config.Cluster, msg *map[string]interface{}) ([]byte, err
 	return res.GetBody()
 }
 
+// UploadMedia provides a helper function to upload the file to whatsapp
 func UploadMedia(clus *config.Cluster, file *types.Media) ([]byte, error) {
 	url := clus.Server + "/v1/media"
 	client := request.NewClient(clus)

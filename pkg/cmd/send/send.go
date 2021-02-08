@@ -19,6 +19,12 @@ var (
 	 `))
 )
 
+// NewDefaultSendCmd returns a cobra command with all of it's
+// child commands added to it, send command supports all the
+// basic type of messages a user can send like text, images,
+// video etc which are supported by whatsapp. also send command
+// is also capable of taking json request body and directly
+// processing the request without using it's children.
 func NewDefaultSendCmd(c *config.Configuration) *cobra.Command {
 	s := NewSendOptions(c)
 	cmd := &cobra.Command{
@@ -31,7 +37,7 @@ func NewDefaultSendCmd(c *config.Configuration) *cobra.Command {
 	}
 	avaCmds := s.GetCmdList()
 	for _, cd := range avaCmds {
-		cmd.AddCommand(s.GetCommand(cd, c))
+		cmd.AddCommand(s.GetCommand(cd))
 	}
 	return cmd
 }
