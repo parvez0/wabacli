@@ -6,6 +6,7 @@ import (
 	"github.com/parvez0/wabacli/config"
 	"github.com/parvez0/wabacli/log"
 	"github.com/parvez0/wabacli/pkg/errutil/handler"
+	handler2 "github.com/parvez0/wabacli/pkg/internal/handler"
 	"github.com/parvez0/wabacli/pkg/utils/helpers"
 	"github.com/parvez0/wabacli/pkg/utils/types"
 	"github.com/parvez0/wabacli/pkg/utils/validator"
@@ -18,6 +19,7 @@ type SendOptions struct {
 	Config *config.Configuration
 	File *types.Media
 	Message types.WAMessage
+	Request map[string]interface{}
 	VerifyContact bool
 	FilePath string
 }
@@ -49,7 +51,7 @@ func (s *SendOptions) GetCommand(arg string, cfg *config.Configuration) *cobra.C
 	default:
 		cmd.Flags().StringVarP(&s.FilePath, "path", "p", "", "relative path to the file which will be send")
 		cmd.Flags().StringVarP(&s.Message.Caption, "caption", "c", "", "caption to be added to the media file")
-		cmd.Flags().BoolVarP(&s.Message.PreviewURL, "preview-url", "s", true, "preview url for video files, by default it is enable")
+		cmd.Flags().BoolVarP(&s.Message.PreviewURL, "preview-url", "s", false, "preview url for showing the preview of the link inside a message")
 	}
 	return cmd
 }
@@ -89,7 +91,22 @@ func (s *SendOptions) Parse()  {
 }
 
 func (s *SendOptions) Run() {
+	mediaId := ""
+	if s.File != nil {
+		mediaId = s.uploadMedia()
+	}
+	s.processBody(mediaId)
+	resp := s.sendMessage()
+	handler2.JsonResponse(resp)
+}
 
+func (s *SendOptions) getRunnable(arg string) func(*cobra.Command, []string) {
+	return func(cmd *cobra.Command, args []string) {
+		s.Message.Type = arg
+		s.Validate()
+		s.Parse()
+		s.Run()
+	}
 }
 
 func (s *SendOptions) uploadMedia() string {
@@ -111,15 +128,41 @@ func (s *SendOptions) uploadMedia() string {
 	return mediaId
 }
 
-func (s *SendOptions) sendMessage()  {
+func (s *SendOptions) processBody(mediaId string) {
+	switch s.Message.Type {
+	case "audio":
+		s.Message.Audio.ID = mediaId
+		s.Message.Audio.Caption = s.Message.Caption
+	case "video":
+		s.Message.Video.ID = mediaId
+		s.Message.Video.Caption = s.Message.Caption
+	case "document":
+		s.Message.Document.ID = mediaId
+		s.Message.Document.Caption = s.Message.Caption
+	case "image":
+		s.Message.Image.ID = mediaId
+		s.Message.Image.Caption = s.Message.Caption
+	}
+	// Marshall the message object to get string
+	m, _ := json.Marshal(s.Message)
+	var finalBody map[string]interface{}
 
+	json.Unmarshal(m, &finalBody)
+	for _, v := range s.GetCmdList(){
+		if s.Message.Type == v {
+			continue
+		}
+		delete(finalBody, v)
+	}
+	log.Debug(fmt.Sprintf("after formatting the request body - %+v", finalBody))
+	s.Request = finalBody
 }
 
-func (s *SendOptions) getRunnable(arg string) func(*cobra.Command, []string) {
-	return func(cmd *cobra.Command, args []string) {
-		s.Message.Type = arg
-		s.Validate()
-		s.Parse()
-		s.Run()
+func (s *SendOptions) sendMessage() string {
+	byts, err := helpers.SendMessage(&s.Config.CurrentCluster, &s.Request)
+	if err != nil {
+		handler.FatalError(err)
 	}
+	log.Debug("message send triggered response received - ", string(byts))
+	return string(byts)
 }

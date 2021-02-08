@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func SendMessage(clus *config.Cluster, msg *types.WAMessage) ([]byte, error) {
+func SendMessage(clus *config.Cluster, msg *map[string]interface{}) ([]byte, error) {
 	url := clus.Server + "/v1/messages"
 	client := request.NewClient(clus)
 	opts := request.Options{
