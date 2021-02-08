@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/parvez0/wabacli/log"
 )
 
@@ -13,6 +14,11 @@ func FatalError(err error)  {
 	if err != nil {
 		fatalError("error: ", err)
 	}
+}
+
+//
+func FormatError(msg string, err interface{}) error {
+	return fmt.Errorf("%s: %v", msg, err)
 }
 
 func FatalJsonError(err error)  {

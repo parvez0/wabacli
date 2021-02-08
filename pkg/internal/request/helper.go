@@ -95,8 +95,14 @@ func (client *Client) NewRequest(options Options) (*Request, error) {
 		if err != nil{
 			return nil, err
 		}
-	} else {
-		body, err := RequestBodyBuilder(options.Body)
+	} else if _, ok := options.Body.([]byte); ok {
+		reader := bytes.NewReader(options.Body.([]byte))
+		req, err = http.NewRequest(options.Method, uri, reader)
+		if err != nil{
+			return nil, err
+		}
+	}else {
+		body, err := requestBodyBuilder(options.Body)
 		if err != nil {
 			return nil, err
 		}
@@ -115,9 +121,14 @@ func (client *Client) NewRequest(options Options) (*Request, error) {
 	}, nil
 }
 
+func (client *Client) AddHeader(key, value string) http.Header {
+	client.Headers.Set(key, value)
+	return client.Headers
+}
+
 // converts the body to json, if body is empty returns null or empty
 // returns a buffer of stringifies struct or request body
-func RequestBodyBuilder(body interface{}) (*bytes.Buffer, error) {
+func requestBodyBuilder(body interface{}) (*bytes.Buffer, error) {
 	if body == nil {
 		return nil, nil
 	}

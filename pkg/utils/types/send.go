@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 type MessageType string
 
 // All the available message type supported by Whatsapp
@@ -34,10 +36,11 @@ var (
 )
 
 type WAMessage struct {
-	To            string `json:"to"`
-	Type          string `json:"type"`
+	To            string `json:"to" validate:"required"`
+	Type          string `json:"type" validate:"required"`
 	RecipientType string `json:"recipient_type"`
 	PreviewURL    bool   `json:"preview_url"`
+	Caption string `json:"caption"`
 	Text          struct {
 		Body string `json:"body"`
 	} `json:"text"`
@@ -56,4 +59,18 @@ type MediaMessage struct {
 	Caption string `json:"caption"`
 	ID      string `json:"id"`
 	Link    string `json:"link"`
+}
+
+type MediaResponse struct {
+	Media []struct {
+		ID string `json:"id"`
+	} `json:"media"`
+	Meta Meta `json:"meta"`
+}
+
+func (m *MediaResponse) GetId() (string, error) {
+	if len(m.Media) > 0 {
+		return m.Media[0].ID, nil
+	}
+	return "", fmt.Errorf("media id is not generated - %+v", m)
 }

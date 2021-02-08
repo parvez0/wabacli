@@ -29,21 +29,16 @@ func NewDefaultSendCmd(c *config.Configuration) *cobra.Command {
 		Example:                    sendExample,
 		Run:                        getDefaultSendCmd(s),
 	}
-	cmd.Flags().StringVarP(&s.UserId, "user", "u", "", "user mobile number with country code")
-	cmd.Flags().StringVarP(&s.Message, "message", "m", "", "message to be sent to the user")
-	cmd.Flags().BoolVarP(&s.VerifyContact, "verify-contact", "v", true,"verify contact before sending the message")
-	cmd.Flags().StringVarP(&s.MediaPath, "file", "f", "", "path to media files, which needs to be send to the client")
+	avaCmds := s.GetCmdList()
+	for _, cd := range avaCmds {
+		cmd.AddCommand(s.GetCommand(cd, c))
+	}
 	return cmd
 }
 
 func getDefaultSendCmd(s *SendOptions) func(*cobra.Command, []string) {
 	return func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			cmd.Help()
-			return
-		}
-		s.Type = string(MediaTypeMapping[args[0]])
-		if s.Type == "" {
 			cmd.Help()
 			return
 		}

@@ -1,9 +1,9 @@
-package send
+package types
 
 import (
 	"fmt"
 	"github.com/parvez0/wabacli/log"
-	"github.com/parvez0/wabacli/pkg/utils"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -11,10 +11,10 @@ import (
 // Media object for storing the information about file,
 // which will be uploaded to whatsapp
 type Media struct {
-	Path string
-	Size int64
+	Path     string `validate:"required"`
+	Size     int64
 	MimeType MediaType
-	Reader *os.File
+	Data   	 []byte
 }
 
 // NewFileReader returns a new object of media type
@@ -33,26 +33,27 @@ func NewFileReader(path string) (*Media, error) {
 // it's stats if file is not present it will
 // return an error other wise it will process
 // link to find the mime type and returns a
-// io.Reader interface
+// []bytes for the files data
 func (f *Media) Read() error {
 	stats, err := os.Stat(f.Path)
 	if err != nil {
 		return err
 	}
-	f.Reader, err = os.Open(f.Path)
+	reader, err := os.Open(f.Path)
 	if err != nil {
 		return err
 	}
+	defer reader.Close()
 	f.Size = stats.Size()
 	err = f.findMimeType()
 	if err != nil {
 		return err
 	}
+	f.Data, err = ioutil.ReadAll(reader)
+	if err != nil {
+		return err
+	}
 	return nil
-}
-
-func (f *Media) Close() {
-	f.Reader.Close()
 }
 
 // findMimeType will map the extension of the file
@@ -68,8 +69,14 @@ func (f *Media) findMimeType() error {
 	log.Debug(fmt.Sprintf("file has extension '%s'", ext))
 	f.MimeType = MediaTypeMapping[ext]
 	if f.MimeType == "" {
-		return fmt.Errorf("upsupported media type, please refer '%s/api/media'", utils.FacebookSupportUrl)
+		return fmt.Errorf("upsupported media type, please refer '%s/api/media'", FacebookSupportUrl)
 	}
 	log.Debug(fmt.Sprintf("file has mime-type '%s'", f.MimeType))
 	return nil
+}
+
+// GetMimeType will return the file mime type
+// which is of type MediaType converted to string
+func (f *Media) GetMimeType() string {
+	return string(f.MimeType)
 }
