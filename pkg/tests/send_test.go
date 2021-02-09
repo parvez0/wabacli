@@ -9,6 +9,7 @@ import (
 	"gotest.tools/assert"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 )
 
@@ -59,7 +60,9 @@ func TestUploadMedia(t *testing.T) {
 func TestVerifyContact(t *testing.T)  {
 	conf, err := config.GetConfig()
 	assert.NilError(t, err, "failed to initialize config")
-	resp, err := helpers.VerifyContact(&conf.CurrentCluster, "+" + os.Getenv("TEST_NUMBER"), true, true)
+	num, err := strconv.Atoi(os.Getenv("TEST_NUMBER"))
+	assert.NilError(t, err, "test number not valid")
+	resp, err := helpers.VerifyContact(&conf.CurrentCluster, num, true, true)
 	assert.NilError(t, err, "failed to verify number")
 	status, err := resp.GetStatus()
 	assert.NilError(t, err, "failed to get status")
