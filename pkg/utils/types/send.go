@@ -39,7 +39,7 @@ var (
 // values which will further be process by intermediate
 // functions to send the request to whatsapp
 type WAMessage struct {
-	To            string `json:"to" validate:"required"`
+	To            int `json:"to" validate:"required"`
 	Type          string `json:"type" validate:"required"`
 	RecipientType string `json:"recipient_type"`
 	PreviewURL    bool   `json:"preview_url,omitempty"`
@@ -92,4 +92,21 @@ func (m *MessageResponse) GetId() (string, error) {
 		return m.Messages[0].ID, nil
 	}
 	return "", fmt.Errorf("message id is not generated - %+v", m)
+}
+
+
+type ContactResponse struct {
+	Contacts []struct {
+		Input  string `json:"input"`
+		Status string `json:"status"`
+		WaID   string `json:"wa_id"`
+	} `json:"contacts"`
+	Meta Meta `json:"meta"`
+}
+
+func (c *ContactResponse) GetStatus() (string, error) {
+	if len(c.Contacts) > 0 {
+		return c.Contacts[0].Status, nil
+	}
+	return "", fmt.Errorf("contact was not verified - %+v", c)
 }

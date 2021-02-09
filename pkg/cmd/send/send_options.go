@@ -23,8 +23,10 @@ type SendOptions struct {
 	File *types.Media
 	Message types.WAMessage
 	Request map[string]interface{}
-	VerifyContact bool
 	FilePath string
+	VerifyContact bool
+	VerifyAsync bool
+	VerifyForced bool
 }
 
 // NewSendOptions initializes the SendOptions and returns a pointer to it
@@ -52,8 +54,10 @@ func (s *SendOptions) GetCommand(arg string) *cobra.Command {
 		Run: s.getRunnable(arg),
 	}
 	cmd.Flags().BoolVarP(&s.VerifyContact, "verify", "v", true, "verify receivers contact before sending the message")
+	cmd.Flags().BoolVarP(&s.VerifyAsync, "verify-async", "b", false, "don't wait for the verify contact response")
+	cmd.Flags().BoolVarP(&s.VerifyForced, "verify-forced", "f", false, "forced verify the account")
 	cmd.Flags().StringVarP(&s.Message.RecipientType, "recipient-type", "r", "individual", "recipient-type it can either be individual or group")
-	cmd.Flags().StringVarP(&s.Message.To, "to", "t", "", "receivers registered mobile number with country code")
+	cmd.Flags().IntVarP(&s.Message.To, "to", "t", 0, "receivers registered mobile number with country code")
 	switch cmd.Use {
 	case "text":
 		cmd.Flags().StringVarP(&s.Message.Text.Body, "message", "m", "", "text message which needs to be send to receiver")
@@ -73,6 +77,21 @@ func (s *SendOptions) Validate()  {
 	err = append(err, msgErr ...)
 	if len(err) > 0{
 		handler.FatalError(handler.FormatError("validation failed", err))
+	}
+	if s.VerifyContact {
+		log.Debug("verifying the contact before sending the message")
+		resp, err := helpers.VerifyContact(&s.Config.CurrentCluster, s.Message.To, s.VerifyAsync, s.VerifyForced)
+		if err != nil {
+			handler.FatalError(err)
+		}
+		status, err := resp.GetStatus()
+		if err != nil  {
+			handler.FatalError(err)
+		}
+		if status == "invalid" {
+			handler2.JsonResponse(resp)
+		}
+		log.Debug("contact verified successfully - ", resp)
 	}
 	log.Debug("field validation is successful, proceeding for command parsing")
 }
