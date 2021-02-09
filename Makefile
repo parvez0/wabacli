@@ -23,7 +23,7 @@ release-pre-check:
 
 tag:
 	@echo "creating tag $(TAG)"
-	@git add . .release .goreleaser.yml cmd/ pkg/
+	@git add .release .goreleaser.yml cmd/ pkg/
 	@git commit -m "Release $(TAG)"
 	@git tag $(TAG)
 	@git push origin $(TAG)
