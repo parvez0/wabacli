@@ -11,8 +11,22 @@ install: system-check
 	@if [ ! -f $(BUILD_PATH) ] ; then echo "binaries does not exits at $(BUILD_PATH)"; exit 1; fi;
 	@if [ "$(go env GOOS)" == "darwin" ] ; then cp $(BUILD_PATH) /Users/$($whoami)/bin/wabactl; fi;
 
-release: system-check test
-	@echo "creating a release"
+release: system-check test release-pre-check tag
+	@echo "creating release $(TAG)"
+	@goreleaser release
+
+release-pre-check:
+	@echo "running pre checks"
+	@if [ -n "$(shell git tag | grep $(TAG))" ] ; then echo "ERROR: Tag '$(TAG)' already exits" && exit 1; fi;
+	@if [ -z "$(shell git remote -v)" ] ; then echo "ERROR: no remote to push tag" && exit 1; fi;
+	@if [ -z "$(shell git config user.email)" ] ; then echo 'ERROR: Unable to detect git credentials' && exit 1 ; fi
+
+tag:
+	@echo "creating tag $(TAG)"
+	@git add . .release .goreleaser.yml cmd/ pkg/
+	@git commit -m "Release $(TAG)"
+	@git tag -a $(TAG)
+	@git push origin $(TAG)
 
 system-check:
 	@echo "initializing system check"
