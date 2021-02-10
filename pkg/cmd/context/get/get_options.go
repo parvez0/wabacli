@@ -20,7 +20,7 @@ func (o *GetOptions)Validate() {
 
 func (o *GetOptions)Run() error {
 	if o.All {
-		tw := templates.NewTableWriter(o.Config.Clusters)
+		tw := templates.NewTableWriter(o.Config.Clusters, o.Config.CurrentContext)
 		tw.ProcessData()
 		tw.Render()
 	}

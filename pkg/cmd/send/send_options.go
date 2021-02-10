@@ -24,6 +24,8 @@ type SendOptions struct {
 	Message types.WAMessage
 	Request map[string]interface{}
 	FilePath string
+	Url string
+	Json string
 	VerifyContact bool
 	VerifyAsync bool
 	VerifyForced bool
@@ -63,6 +65,7 @@ func (s *SendOptions) GetCommand(arg string) *cobra.Command {
 		cmd.Flags().StringVarP(&s.Message.Text.Body, "message", "m", "", "text message which needs to be send to receiver")
 	default:
 		cmd.Flags().StringVarP(&s.FilePath, "path", "p", "", "relative path to the file which will be send")
+		cmd.Flags().StringVarP(&s.Url, "url", "u", "", "file url which needs to be sent to the user")
 		cmd.Flags().StringVarP(&s.Message.Caption, "caption", "c", "", "caption to be added to the media file")
 		cmd.Flags().BoolVarP(&s.Message.PreviewURL, "preview-url", "s", false, "preview url for showing the preview of the link inside a message")
 	}
@@ -108,6 +111,9 @@ func (s *SendOptions) Parse()  {
 			handler.FatalError(fmt.Errorf("validation failed: ValidationError(RequiredFiled) missing required field \"Message;\""))
 		}
 	default:
+		if s.Url != "" {
+			return
+		}
 		if s.FilePath == "" {
 			handler.FatalError(fmt.Errorf("validation failed: ValidationError(RequiredFiled) missing required field \"Path;\""))
 		}
@@ -176,19 +182,25 @@ func (s *SendOptions) uploadMedia() string {
 // to SendOptions as Request field which will be used for sending
 // the message through api
 func (s *SendOptions) processBody(mediaId string) {
-	switch s.Message.Type {
-	case "audio":
-		s.Message.Audio.ID = mediaId
-		s.Message.Audio.Caption = s.Message.Caption
-	case "video":
-		s.Message.Video.ID = mediaId
-		s.Message.Video.Caption = s.Message.Caption
-	case "document":
-		s.Message.Document.ID = mediaId
-		s.Message.Document.Caption = s.Message.Caption
-	case "image":
-		s.Message.Image.ID = mediaId
-		s.Message.Image.Caption = s.Message.Caption
+	if s.Json == "" {
+		switch s.Message.Type {
+		case "audio":
+			s.Message.Audio.ID = mediaId
+			s.Message.Audio.Caption = s.Message.Caption
+			s.Message.Audio.Link = s.Url
+		case "video":
+			s.Message.Video.ID = mediaId
+			s.Message.Video.Caption = s.Message.Caption
+			s.Message.Video.Link = s.Url
+		case "document":
+			s.Message.Document.ID = mediaId
+			s.Message.Document.Caption = s.Message.Caption
+			s.Message.Document.Link = s.Url
+		case "image":
+			s.Message.Image.ID = mediaId
+			s.Message.Image.Caption = s.Message.Caption
+			s.Message.Image.Link = s.Url
+		}
 	}
 	// Marshall the message object to get string
 	m, _ := json.Marshal(s.Message)

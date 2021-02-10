@@ -36,17 +36,29 @@ func GetConfig() (c *Configuration, err error) {
 	return
 }
 
-func createConfigDirectory()  {
+// createConfig will helps in creating the config
+// file if it doesn't exits. it initializes a empty
+// config file which can used to write the data of
+// the accounts which will be added
+func createConfig()  {
 	cp := "/etc/wabactl"
 	home, err := os.UserHomeDir()
 	if err != nil {
-		log.Debug(fmt.Sprintf("home directory not found %s. using '%s/config.yml' directory as default config path", err.Error(), cp))
+		log.Debug(fmt.Sprintf("home directory not found %s. using '%s/config' directory as default config path", err.Error(), cp))
 	} else {
 		cp = home + "/.waba"
 	}
 	err = os.Mkdir(cp, 0700)
 	if ex := os.IsNotExist(err); ex {
 		handler.FatalError(fmt.Errorf("failed to create config file at '%s'; %s", cp, err.Error()))
+	}
+	_, err = os.Stat(cp + "/config")
+	if err != nil {
+		log.Debug("creating config file at :", cp)
+		_, err = os.Create(cp + "/config")
+		if err != nil {
+			handler.FatalError(fmt.Errorf("failed to create config file at '%s'; %s", cp, err.Error()))
+		}
 	}
 }
 
@@ -57,7 +69,7 @@ func initializeConfig() (*Configuration, error)  {
 	vp.SetConfigName("config")
 	vp.SetConfigType("yaml")
 	vp.AddConfigPath("$HOME/.waba/")
-	vp.AddConfigPath("/etc/wabactl")
+	vp.AddConfigPath("/etc/wabacli")
 	vp.AddConfigPath(".")
 	vp.AutomaticEnv()
 
@@ -75,7 +87,7 @@ func initializeConfig() (*Configuration, error)  {
 	vp.SetDefault("current_context", DefaultCurrentContext)
 	if err := vp.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			createConfigDirectory()
+			createConfig()
 		} else {
 			return nil, err
 		}

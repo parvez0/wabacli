@@ -4,27 +4,43 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod download
-    # you may remove this if you don't need go generate
-    - go generate ./...
 builds:
-  - env:
+  - id: wabacli
+    env:
       - CGO_ENABLED=0
     main: ./cmd/main.go
+    binary: wabacli
     goos:
       - linux
       - windows
       - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+      - ppc64le
+    goarm: [6, 7]
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
+  - id: wabacli-archive
+    name_template: |-
+      wabacli_{{ .Tag }}_{{ .Os }}_{{ .Arch -}}
+      {{- with .Arm -}}
+          {{- if (eq . "6") -}}hf
+          {{- else -}}v{{- . -}}
+          {{- end -}}
+      {{- end -}}
+    replacements:
       386: i386
       amd64: x86_64
+    files: ["LICENSE"]
+    format_overrides:
+      - goos: windows
+        format: zip
 checksum:
   name_template: 'checksums.txt'
+  algorithm: sha256
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  name_template: "{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}"
 changelog:
   sort: asc
   filters:

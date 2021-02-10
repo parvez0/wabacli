@@ -15,13 +15,14 @@ var (
 
 type TableWriter struct {
 	Data interface{}
+	CurrentContext string
 	TW *tablewriter.Table
 }
 
 // NewTableWriter initializes a new table writer object,
 // all the settings has been predefined it will print a table
 // without borders and left align content
-func NewTableWriter(data interface{}) *TableWriter {
+func NewTableWriter(data interface{}, context string) *TableWriter {
 	
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
@@ -39,6 +40,7 @@ func NewTableWriter(data interface{}) *TableWriter {
 	return &TableWriter{
 		Data: data,
 		TW: table,
+		CurrentContext: context,
 	}
 }
 
@@ -54,11 +56,20 @@ func (tw *TableWriter)ProcessData() {
 			}
 			val := reflect.ValueOf(v)
 			var row []string
+			var colRow []tablewriter.Colors
 			for _, h := range ConfigClusterHeaders {
 				row = append(row, fmt.Sprintf("%v", val.FieldByName(h)))
+				if v.Context == tw.CurrentContext {
+					colRow = append(colRow, tablewriter.Colors{tablewriter.Normal, tablewriter.BgWhiteColor, tablewriter.FgBlackColor})
+				}
+			}
+			if v.Context == tw.CurrentContext {
+				tw.TW.Rich(row, colRow)
+				continue
 			}
 			data = append(data, row)
 		}
+
 		tw.TW.AppendBulk(data)
 	case []string:
 		clusters := tw.Data.([]string)
