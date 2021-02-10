@@ -1,5 +1,5 @@
 TAG=$(shell cat .release | cut -d'=' -f2)
-BUILD_PATH="$(shell go env GOPATH)/bin/wabactl"
+BUILD_PATH="$(shell go env GOPATH)/bin/wabacli"
 .DEFAULT_GOAL := build
 
 build: system-check
@@ -9,7 +9,7 @@ build: system-check
 
 install: system-check
 	@if [ ! -f $(BUILD_PATH) ] ; then echo "binaries does not exits at $(BUILD_PATH)"; exit 1; fi;
-	@if [ "$(go env GOOS)" == "darwin" ] ; then cp $(BUILD_PATH) /Users/$($whoami)/bin/wabactl; fi;
+	@if [ "$(go env GOOS)" == "darwin" ] ; then cp $(BUILD_PATH) /Users/$($whoami)/bin/wabacli; fi;
 
 release: system-check test release-pre-check tag
 	@echo "creating release $(TAG)"
@@ -23,7 +23,7 @@ release-pre-check:
 
 tag:
 	@echo "creating tag $(TAG)"
-	@git add .release .goreleaser.yml cmd/ pkg/
+	@git add .release .goreleaser.yml cmd/ pkg/ config/ Makefile
 	@git commit -m "Release $(TAG)"
 	@git tag $(TAG)
 	@git push origin $(TAG)

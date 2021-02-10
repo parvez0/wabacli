@@ -41,7 +41,7 @@ func GetConfig() (c *Configuration, err error) {
 // config file which can used to write the data of
 // the accounts which will be added
 func createConfig()  {
-	cp := "/etc/wabactl"
+	cp := "/etc/wabacli"
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Debug(fmt.Sprintf("home directory not found %s. using '%s/config' directory as default config path", err.Error(), cp))
