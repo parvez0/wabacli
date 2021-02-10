@@ -11,13 +11,13 @@ import (
 var config, _ = config2.GetConfig()
 
 
-// NewDefaultWabaCmdWithConfig returns root command for wabactl cli
+// NewDefaultWabaCmdWithConfig returns root command for wabacli cli
 func NewDefaultWabaCmdWithConfig() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "wabactl",
-		Short: "wabactl provides a cli to interact with whatsapp business account",
+		Use:   "wabacli",
+		Short: "wabacli provides a cli to interact with whatsapp business account",
 		Long:  templates.LongDesc(`
-			wabactl provides a cli to interact with whatsapp business account
+			wabacli provides a cli to interact with whatsapp business account
 
 			you can find more information of the api's at:
             	https://developers.facebook.com/docs/whatsapp/api/account

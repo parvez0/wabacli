@@ -19,10 +19,10 @@ var (
 	`))
 	sendExample = templates.Examples(i18n.T(`
 	# send text message
-	wabactl send text --message "Hello World"
+	wabacli send text --message "Hello World"
 	
 	# send message using json
-	wabactl send --json '{"to":"{{Recipient-WA-ID}}","type":"text","recipient_type":"individual","text":{"body":"<Message Text>"}}'
+	wabacli send --json '{"to":"{{Recipient-WA-ID}}","type":"text","recipient_type":"individual","text":{"body":"<Message Text>"}}'
 	 `))
 )
 

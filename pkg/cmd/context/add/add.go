@@ -15,10 +15,10 @@ var (
 	`))
 	addExample = templates.Examples(i18n.T(`
         # Add a new cluster with parameters
-        wabactl context add --server <IP> --cluster-name <string> --number <without country code> --country-code <91> --username <string> --password 
+        wabacli context add --server <IP> --cluster-name <string> --number <without country code> --country-code <91> --username <string> --password 
 
         # List info about a single cluster
-        wabactl context add --json "{cluster_name: '', number: '', country_code: '', username: '', password: ''}"
+        wabacli context add --json "{cluster_name: '', number: '', country_code: '', username: '', password: ''}"
 	`))
 )
 

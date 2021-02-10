@@ -18,10 +18,10 @@ var (
 	`))
 	refreshExample = templates.Examples(i18n.T(`
         # List info of all clusters
-        wabactl context refresh
+        wabacli context refresh
 
         # List info about a single cluster
-        wabactl context refresh 
+        wabacli context refresh 
 	`))
 )
 

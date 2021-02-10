@@ -60,31 +60,31 @@ var (
 	ExampleDesc = map[string]string{
 		"text": templates.Examples(i18n.T(`
 			# send a text message
-			wabactl send text --to 9190000000 --message <string>
+			wabacli send text --to 9190000000 --message <string>
 		`)),
 		"image": templates.Examples(i18n.T(`
 			# send an video with a caption
-			wabactl send image --to 9190000000 --caption[optional] <string> --path <path/to/file>
+			wabacli send image --to 9190000000 --caption[optional] <string> --path <path/to/file>
 			# send an video using url
-			wabactl send image --to <wa_id with country code> --caption[optional] <string> --url <image url>
+			wabacli send image --to <wa_id with country code> --caption[optional] <string> --url <image url>
 		`)),
 		"document": templates.Examples(i18n.T(`
 			# send an video with a caption
-			wabactl send document --to 9190000000 --caption[optional] <string> --path <path/to/file>
+			wabacli send document --to 9190000000 --caption[optional] <string> --path <path/to/file>
 			# send an video using url
-			wabactl send document --to <wa_id with country code> --caption[optional] --url <file url>
+			wabacli send document --to <wa_id with country code> --caption[optional] --url <file url>
 		`)),
 		"audio": templates.Examples(i18n.T(`
 			# send an video with a caption
-			wabactl send audio --to 9190000000 --caption[optional] <string> --path <path/to/file>
+			wabacli send audio --to 9190000000 --caption[optional] <string> --path <path/to/file>
 			# send an video using url
-			wabactl send audio --to <wa_id with country code> --caption[optional] <string> --url <image url>
+			wabacli send audio --to <wa_id with country code> --caption[optional] <string> --url <image url>
 		`)),
 		"video": templates.Examples(i18n.T(`
 			# send an video with a caption
-			wabactl send video --to 9190000000 --caption[optional] <string> --path <path/to/file>
+			wabacli send video --to 9190000000 --caption[optional] <string> --path <path/to/file>
 			# send an video using url
-			wabactl send video --to <wa_id with country code> --caption[optional] <string> --url <image url>
+			wabacli send video --to <wa_id with country code> --caption[optional] <string> --url <image url>
 		`)),
 	}
 )

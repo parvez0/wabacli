@@ -17,10 +17,10 @@ var (
 	`))
 	getExample = templates.Examples(i18n.T(`
         # List info of all clusters
-        wabactl context get
+        wabacli context get
 
         # List info about a single cluster
-        wabactl context get --name example
+        wabacli context get --name example
 	`))
 )
 

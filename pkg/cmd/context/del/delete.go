@@ -16,7 +16,7 @@ var (
 
 	delExample = templates.Examples(i18n.T(`
         # Set current context
-        wabactl context del <number | name>
+        wabacli context del <number | name>
 	`))
 )
 

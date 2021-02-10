@@ -22,10 +22,10 @@ var (
 
 	contextExample = templates.Examples(i18n.T(`
 		# List all accounts in current configuration.
-		wabactl context list
+		wabacli context list
 
 		# Get info about the current .
-		wabactl context get --selector 
+		wabacli context get --selector 
 	`))
 )
 
