@@ -11,9 +11,9 @@ builds:
     main: ./cmd/main.go
     binary: wabacli
     goos:
-      - linux
-      - windows
-      - darwin
+      - Linux
+      - Windows
+      - Darwin
     goarch:
       - amd64
       - arm
