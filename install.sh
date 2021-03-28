@@ -45,6 +45,7 @@ INTERACTIVE=1
 VERSION="latest"
 ARCH=""
 INSTTALLATION_PATH="/usr/bin/"
+EXTRACTED_PATH=""
 
 # verifying dependencies
 verify() {
@@ -66,6 +67,10 @@ system_info() {
   OS="$(uname -o 2> /dev/null || uname -rs)"
   MACHINE="$(uname -m 2> /dev/null)"
   ARCH=$(echo "${SYSTEM}_${MACHINE}" | tr '[:upper:]' '[:lower:]')
+
+  if [[ "${SYSTEM}" == "Darwin" && "${INSTTALLATION_PATH}" == "/usr/bin/" ]]; then
+    INSTTALLATION_PATH="/usr/local/bin/"
+  fi
 
   info "SYSTEM       :   $SYSTEM"
   info "MACHINE      :   $MACHINE"
@@ -90,18 +95,35 @@ latest_release() {
 
 # download the latest released binaries for installation
 download_tarball(){
-  URL="https://github.com/parvez0/wabacli/releases/download/$VERSION/wabacli_$VERSION_$ARCH.tar.gz"
+  URL="https://github.com/parvez0/wabacli/releases/download/$VERSION/wabacli_${VERSION}_${ARCH}.tar.gz"
   info "downloading latest release binaries from $URL"
-  cmd="$AGENT -O wabacli_$VERSION_$ARCH.tar.gz $URL"
+  ARGS="-LJ --output"
+  if [[ "$AGENT" == "wget" ]]; then
+    ARGS="-O"
+  fi
+  cmd="${AGENT} ${ARGS} wabacli_${VERSION}_${ARCH}.tar.gz $URL"
   eval "$cmd"
-  echo "extracting tar ball to wabacli_$VERSION_$ARCH"
-  tar -C "wabacli_$VERSION_$ARCH" -xf "wabacli_$VERSION_$ARCH.tar.gz"
+  EXTRACTED_PATH="wabacli_${VERSION}_${ARCH}"
+  info "extracting tar ball to $EXTRACTED_PATH"
+  mkdir "$EXTRACTED_PATH"
+  tar -C "$EXTRACTED_PATH" -xvf "wabacli_${VERSION}_${ARCH}.tar.gz"
+}
+
+# removed depended files
+clean_up(){
+  rm -rf "$EXTRACTED_PATH" "$EXTRACTED_PATH.tar.gz"
 }
 
 # copy the binary to installation path
 install(){
-  echo "installing wabacli"
-  sudo cp "/tmp/wabacli_$VERSION_$ARCH/wabacli" $INSTTALLATION_PATH
+  info "installing wabacli"
+  cmd="cp "$EXTRACTED_PATH/wabacli" $INSTTALLATION_PATH"
+  if [ "$UID" == 0 ]; then
+    eval $cmd
+  else
+    eval "sudo $cmd"
+  fi
+
 }
 
 #verify
@@ -143,3 +165,4 @@ system_info
 latest_release
 download_tarball
 install
+clean_up
