@@ -22,12 +22,16 @@ release-pre-check:
 	@if [ -z "$(shell git remote -v)" ] ; then echo "ERROR: no remote to push tag" && exit 1; fi;
 	@if [ -z "$(shell git config user.email)" ] ; then echo 'ERROR: Unable to detect git credentials' && exit 1 ; fi
 
-tag:
+tag: update-readme
 	@echo "creating tag $(TAG)"
 	@git add .release .goreleaser.yml cmd/ pkg/ config/ Makefile
 	@git commit -m "Release $(TAG)"
 	@git tag $(TAG)
 	@git push origin $(TAG)
+
+update-readme:
+	@echo "updated README.md release tag to $(TAG)"
+	@sed -i "" "s~release-v.*-blue)~release-${TAG}-blue)~" README.md
 
 system-check:
 	@echo "initializing system check"
