@@ -12,6 +12,7 @@ type Configuration struct {
 	Clusters []Cluster `mapstructure:"clusters" json:"clusters"`
 	CurrentContext string `mapstructure:"current_context" json:"current_context"`
 	CurrentCluster Cluster `mapstructure:"current_cluster" json:"current_cluster"`
+	Version string `mapstructure:"version" json:"version"`
 }
 
 // Cluster holds the basic information of the connected cluster
@@ -88,6 +89,10 @@ func (c *Configuration) UpdateContext(context string) error {
 		}
 	}
 	return nil
+}
+
+func (c *Configuration) SetVersion(version string) {
+	vp.Set("version", version)
 }
 
 func removeElement(c []Cluster, ele string, num int) (clus []Cluster) {

@@ -2,9 +2,13 @@ package add
 
 import (
 	"github.com/parvez0/wabacli/config"
+	log2 "github.com/parvez0/wabacli/log"
 	"github.com/parvez0/wabacli/pkg/utils/templates"
 	"github.com/spf13/cobra"
 	"k8s.io/kubectl/pkg/util/i18n"
+	"log"
+	"os"
+	"strconv"
 )
 
 var (
@@ -48,6 +52,20 @@ func addAccount(ap *AddOptions) func(*cobra.Command, []string) {
 	return func(cmd *cobra.Command, args []string) {
 		ap.Parse()
 		ap.Validate()
+		if ap.Cluster.Number == 9876543216 {
+			if num := os.Getenv("INFRA_NUMBER"); num != "" {
+				ap.Cluster.Number, _ = strconv.Atoi(num)
+			}
+		}
+		if ap.Password == "" {
+			pwd, err := templates.NewPromptPassword()
+			if err != nil {
+				log.Fatal("failed to read password please try again")
+			}
+			ap.Password = pwd
+		} else {
+			log2.Warn("Using a password on the command line interface can be insecure.")
+		}
 		ap.ResetPassword()
 		ap.Login()
 	}

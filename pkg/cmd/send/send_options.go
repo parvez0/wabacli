@@ -8,9 +8,11 @@ import (
 	"github.com/parvez0/wabacli/pkg/errutil/handler"
 	handler2 "github.com/parvez0/wabacli/pkg/internal/handler"
 	"github.com/parvez0/wabacli/pkg/utils/helpers"
+	"github.com/parvez0/wabacli/pkg/utils/templates"
 	"github.com/parvez0/wabacli/pkg/utils/types"
 	"github.com/parvez0/wabacli/pkg/utils/validator"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 type Cmd string
@@ -75,6 +77,13 @@ func (s *SendOptions) GetCommand(arg string) *cobra.Command {
 // Validate will verify if any required field is empty,
 // if the required filed is not provided it will exit.
 func (s *SendOptions) Validate()  {
+	if s.Message.To == 0 {
+		num, err := templates.NewPromptNumber()
+		if err != nil {
+			handler.FatalError(fmt.Errorf("failed to read mobile number: %s", err.Error()))
+		}
+		s.Message.To = num
+	}
 	err := validator.Validate(s)
 	msgErr := validator.Validate(s.Message)
 	err = append(err, msgErr ...)
@@ -93,6 +102,7 @@ func (s *SendOptions) Validate()  {
 		}
 		if status == "invalid" {
 			handler2.JsonResponse(resp)
+			os.Exit(1)
 		}
 		log.Debug("contact verified successfully - ", resp)
 	}

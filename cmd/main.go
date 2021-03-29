@@ -20,12 +20,15 @@ import (
 	"github.com/parvez0/wabacli/pkg/errutil/handler"
 )
 
+var BuildVersion = "development"
+
 func init()  {
 	// initialize config and other necessary packages
-	_, err := config.GetConfig()
+	c, err := config.GetConfig()
 	if err != nil {
 		handler.FatalError(err)
 	}
+	c.SetVersion(BuildVersion)
 }
 
 func main() {

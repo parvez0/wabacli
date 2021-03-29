@@ -3,6 +3,8 @@ package templates
 import (
 	"fmt"
 	"github.com/manifoldco/promptui"
+	"regexp"
+	"strconv"
 )
 
 func NewPromptSelect(label string, items []string) (string, error) {
@@ -27,4 +29,24 @@ func NewPromptPassword() (string, error) {
 		Mask:     '*',
 	}
 	return prompt.Run()
+}
+
+func NewPromptNumber() (int, error) {
+	validate := func(input string) error {
+		r := regexp.MustCompile("^\\d+$")
+		if !r.Match([]byte(input)) {
+			return fmt.Errorf("mobile Number must not be empty")
+		}
+		return nil
+	}
+	prompt := promptui.Prompt{
+		Label:    "Mobile Number",
+		Validate: validate,
+		Mask:     '*',
+	}
+	num, err := prompt.Run()
+	if err != nil {
+		return 0, err
+	}
+	return strconv.Atoi(num)
 }

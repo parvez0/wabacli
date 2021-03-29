@@ -44,7 +44,7 @@ OPTIONS=""
 INTERACTIVE=1
 VERSION="latest"
 ARCH=""
-INSTTALLATION_PATH="/usr/bin/"
+INSTALLATION_PATH="/usr/bin/"
 EXTRACTED_PATH=""
 
 # verifying dependencies
@@ -67,9 +67,9 @@ system_info() {
   OS="$(uname -o 2> /dev/null || uname -rs)"
   MACHINE="$(uname -m 2> /dev/null)"
   ARCH=$(echo "${SYSTEM}_${MACHINE}" | tr '[:upper:]' '[:lower:]')
-
-  if [[ "${SYSTEM}" == "Darwin" && "${INSTTALLATION_PATH}" == "/usr/bin/" ]]; then
-    INSTTALLATION_PATH="/usr/local/bin/"
+  
+  if [[ "${SYSTEM}" == "Darwin" && "${INSTALLATION_PATH}" == "/usr/bin/" ]]; then
+    INSTALLATION_PATH="/usr/local/bin/"
   fi
 
   info "SYSTEM       :   $SYSTEM"
@@ -117,7 +117,7 @@ clean_up(){
 # copy the binary to installation path
 install(){
   info "installing wabacli"
-  cmd="cp "$EXTRACTED_PATH/wabacli" $INSTTALLATION_PATH"
+  cmd="cp "$EXTRACTED_PATH/wabacli" $INSTALLATION_PATH"
   if [ "$UID" == 0 ]; then
     eval $cmd
   else
@@ -142,12 +142,12 @@ while [ -n "${1}" ]; do
     case "${1}" in
     "--installation_path")
         shift 1
-        INSTTALLATION_PATH="${1}"
+        INSTALLATION_PATH="${1}"
         validate_input "$arg" "$1"
         if [ ! -d "$1" ]; then
           fatal "specified directory \"$1\" does not exits"
         fi
-        info "setting up installation path to $INSTTALLATION_PATH"
+        info "setting up installation path to $INSTALLATION_PATH"
         ;;
     "--version")
         shift 1

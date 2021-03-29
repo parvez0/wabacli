@@ -17,7 +17,7 @@ func JsonResponse(msg interface{})  {
 		}
 		logger(string(b))
 	} else {
-		b, err := json.MarshalIndent(res, "", "  ")
+		b, err := json.MarshalIndent(msg, "", "  ")
 		if err != nil {
 			logger(msg)
 		}

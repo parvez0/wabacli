@@ -15,7 +15,7 @@ import (
 type AddOptions struct {
 	Config *config.Configuration
 	Cluster config.Cluster
-	Password string `validate:"required"`
+	Password string
 	Reset bool
 	NewPassword string
 	Json string

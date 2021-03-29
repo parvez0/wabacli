@@ -1,15 +1,16 @@
 TAG=$(shell cat .release | cut -d'=' -f2)
+DEVELOPMENT_TAG=$(shell cat .development)
 BUILD_PATH="$(shell go env GOPATH)/bin/wabacli"
 .DEFAULT_GOAL := build
 
 build: system-check
-	@echo "starting build at $(BUILD_PATH)"
-	@cd cmd/ && GOOS_VAL=$(shell go env GOOS) GOARCH_VAL=$(shell go env GOARCH) go build -o $(BUILD_PATH) main.go
+	@echo "starting build at $(BUILD_PATH) for tag $(DEVELOPMENT_TAG)"
+	@cd cmd/ && GOOS_VAL=$(shell go env GOOS) GOARCH_VAL=$(shell go env GOARCH) go build -ldflags="-X main.BuildVersion=$(DEVELOPMENT_TAG)" -o $(BUILD_PATH) main.go
 	@echo "build successful"
 
 install: system-check
 	@if [ ! -f $(BUILD_PATH) ] ; then echo "binaries does not exits at $(BUILD_PATH)"; exit 1; fi;
-	@if [ "$(go env GOOS)" == "darwin" ] ; then cp $(BUILD_PATH) /Users/$($whoami)/bin/wabacli; fi;
+	@if [[ "$(shell go env GOOS)" == "darwin" ]]; then echo "copying binaries to install path" && sudo cp "${BUILD_PATH}" /usr/local/bin/; fi;
 
 release: system-check test release-pre-check tag
 	@echo "creating release $(TAG)"

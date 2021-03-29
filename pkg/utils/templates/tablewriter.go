@@ -44,7 +44,7 @@ func NewTableWriter(data interface{}, context string) *TableWriter {
 	}
 }
 
-func (tw *TableWriter)ProcessData() {
+func (tw *TableWriter) ProcessData() {
 	switch tw.Data.(type) {
 	case []config.Cluster:
 		tw.TW.SetHeader(ConfigClusterHeaders)
@@ -58,7 +58,11 @@ func (tw *TableWriter)ProcessData() {
 			var row []string
 			var colRow []tablewriter.Colors
 			for _, h := range ConfigClusterHeaders {
-				row = append(row, fmt.Sprintf("%v", val.FieldByName(h)))
+				fVal := fmt.Sprintf("%v", val.FieldByName(h))
+				if h == "Number" {
+					fVal = fmt.Sprintf("%s******%s", fVal[0:2], fVal[len(fVal)-3:])
+				}
+				row = append(row, fVal)
 				if v.Context == tw.CurrentContext {
 					colRow = append(colRow, tablewriter.Colors{tablewriter.Normal, tablewriter.BgWhiteColor, tablewriter.FgBlackColor})
 				}
