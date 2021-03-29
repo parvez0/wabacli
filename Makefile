@@ -24,7 +24,7 @@ release-pre-check:
 
 tag: update-readme
 	@echo "creating tag $(TAG)"
-	@git add .release .goreleaser.yml cmd/ pkg/ config/ Makefile
+	@git add .release README.md .goreleaser.yml cmd/ pkg/ config/ Makefile
 	@git commit -m "Release $(TAG)"
 	@git tag $(TAG)
 	@git push origin $(TAG)
