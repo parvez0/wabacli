@@ -21,6 +21,7 @@ release-pre-check:
 	@if [ -n "$(shell git tag | grep $(TAG))" ] ; then echo "ERROR: Tag '$(TAG)' already exits" && exit 1; fi;
 	@if [ -z "$(shell git remote -v)" ] ; then echo "ERROR: no remote to push tag" && exit 1; fi;
 	@if [ -z "$(shell git config user.email)" ] ; then echo 'ERROR: Unable to detect git credentials' && exit 1 ; fi
+	@if [ -d dist ] ; then echo "deleting previously generated dist files" && rm -rf dist; fi
 
 tag: update-readme
 	@echo "creating tag $(TAG)"
