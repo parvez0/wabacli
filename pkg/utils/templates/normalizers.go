@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-
 const Indentation = `  `
 
 // LongDesc normalizes a command's long description to follow the conventions.
@@ -79,4 +78,3 @@ func (s normalizer) indent() normalizer {
 	s.string = strings.Join(indentedLines, "\n")
 	return s
 }
-

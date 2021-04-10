@@ -16,8 +16,8 @@ import (
 
 // Client provides a wrapper around http client
 type Client struct {
-	Client *http.Client
-	Headers http.Header
+	Client   *http.Client
+	Headers  http.Header
 	BasePath string
 }
 
@@ -26,28 +26,28 @@ type Response struct {
 }
 
 type Request struct {
-	Req *http.Request
+	Req    *http.Request
 	Client *http.Client
 }
 
 // global client options
 type GlobalOptions struct {
-	Timeout time.Duration
+	Timeout  time.Duration
 	BasePath string
-	Headers http.Header
+	Headers  http.Header
 }
 
 // options object
 type Options struct {
-	Url string
-	Method string
+	Url     string
+	Method  string
 	Headers http.Header
-	Body interface{}
-	Query map[string]string
+	Body    interface{}
+	Query   map[string]string
 }
 
 // create a request client with global configurations
-func NewClient( cluster *config.Cluster) *Client {
+func NewClient(cluster *config.Cluster) *Client {
 	var client Client
 	var transport = http.DefaultTransport
 	transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: cluster.Insecure}
@@ -62,7 +62,7 @@ func NewClient( cluster *config.Cluster) *Client {
 	headers.Add("Content-Type", "application/json")
 	client.BasePath = cluster.Server
 	if cluster.Auth != "" {
-		headers.Add(types.HeaderAuthorization, "Bearer " + cluster.Auth)
+		headers.Add(types.HeaderAuthorization, "Bearer "+cluster.Auth)
 	}
 	client.Headers = headers
 	return &client
@@ -92,27 +92,27 @@ func (client *Client) NewRequest(options Options) (*Request, error) {
 	var req *http.Request
 	if options.Body == nil {
 		req, err = http.NewRequest(options.Method, uri, nil)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 	} else if _, ok := options.Body.([]byte); ok {
 		reader := bytes.NewReader(options.Body.([]byte))
 		req, err = http.NewRequest(options.Method, uri, reader)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
-	}else {
+	} else {
 		body, err := requestBodyBuilder(options.Body)
 		if err != nil {
 			return nil, err
 		}
 		req, err = http.NewRequest(options.Method, uri, body)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 	}
 	req.Header = client.Headers
-	if len(options.Headers) != 0{
+	if len(options.Headers) != 0 {
 		req.Header = options.Headers
 	}
 	return &Request{
@@ -140,7 +140,7 @@ func requestBodyBuilder(body interface{}) (*bytes.Buffer, error) {
 	default:
 		log.Debug("trying to convert the request body to json")
 		mr, err := json.Marshal(body)
-		if err != nil{
+		if err != nil {
 			log.Debug(fmt.Sprintf("failed json marshall - %v", err))
 			return nil, err
 		}
@@ -165,17 +165,17 @@ func (req *Request) Send() (*Response, error) {
 func uriBuilder(basePath string, urlPath string, qp map[string]string) string {
 	qString := ""
 	for k, v := range qp {
-		qString += k +"="+ v
+		qString += k + "=" + v
 	}
-	if strings.Contains(urlPath, "?"){
+	if strings.Contains(urlPath, "?") {
 		urlPath += qString
 	}
-	if qString != ""{
+	if qString != "" {
 		urlPath += "?" + qString
 	}
-	if strings.HasPrefix(urlPath, "http"){
+	if strings.HasPrefix(urlPath, "http") {
 		urlPath += qString
-	} else if strings.HasSuffix(basePath, "/"){
+	} else if strings.HasSuffix(basePath, "/") {
 		urlPath = basePath + urlPath
 	} else {
 		urlPath = basePath + urlPath
@@ -183,5 +183,3 @@ func uriBuilder(basePath string, urlPath string, qp map[string]string) string {
 	log.Debug("generated url: ", urlPath)
 	return urlPath
 }
-
-
